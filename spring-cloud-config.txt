@@ -1,0 +1,63 @@
+1. cloud-config:
+-------------
+dependencies: spring-cloud-config-server, spring-boot-starter-web, spring-boot-starter-security, spring-cloud-dependencies(Brixton.SR7)
+configuration: 
+@EnableConfigServer
+
+application.properties:
+---------------
+spring.cloud.config.server.git.uri: https://github.com/krish1984/cloud-config
+spring.cloud.config.server.git.search-paths: - 'service*'
+security.basic.enabled: true
+security.user.name: vvr
+security.user.password: vvr
+
+2. eureka server:
+--------------------
+dependencies: spring-cloud-starter-eureka-server, spring-boot-starter-web, spring-boot-starter-security, spring-cloud-dependencies(Brixton.SR7)
+configuration: 
+@EnableEurekaServer
+
+Ex config of eureka server in prod: 
+
+
+serv1 (for us-east)<------sync--------->serv2 (for us-west)<------sync--------> serv3 (for asia) : The reason for this is, if u have an outrage of nw in an entire region due to 
+some natural disaster or some thing, then ur app is resiliant enough to use services from the other regions.
+
+The config of eureka server is stored in local only.
+application.properties:
+---------------
+eureka.client.serviceUrl: http://ip1:8080/eureka,http://ip2:8080/eureka
+eureka.client.registerWithEureka: true
+eureka.client.fetchRegisrtry:true
+In local u may be running only 1 instance in that case u can say: registerWithEureka=false & fetchRegisrtry:false to supress warning from spring 
+that it is not syncing.
+
+3. service1:
+----------------
+dependencies: spring-cloud-config-client, spring-cloud-starter-eureka,spring-cloud-starter-feign, spring-boot-starter-web, spring-cloud-dependencies(Brixton.SR7),
+spring-cloud-starter-sleuth or spring-cloud-starter-zipkin.
+
+configuration: 
+@EnableDiscoveryClient, @EnableFeignClients, 
+@Value("${db}")
+String db;
+
+bootstrap.yml: (Note: The config server credentials must be provided in the bootstrap file which gets loaded 1st event before the configserver is hit during the app startup. orelse, req to config server is made without credentials)
+---------------------
+spring.cloud.config.username=vvr
+spring.cloud.config.password=vvr
+
+application.properties:
+---------------
+spring.application.name:s1 and  the profile is set in vm args or setenv.bat
+spring.cloud.config.uri=http://localhost:8888/
+
+GIT service1/s1-dev.properties:
+----------------
+db=s1_dev_db_latest1
+server.port=8080
+eureka.client.serviceUrl.defaultZone=Any eureka server url or all of them seperated by comma.
+eureka.client.fetch-registry=true
+spring.zipkin.base-url=http://localhost:5678/
+spring.sleuth.sampler.percentage=1.0
