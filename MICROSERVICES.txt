@@ -1,0 +1,150 @@
+﻿History:
+------------
+At the beginning of designing any software application, companies typically assemble a team and create a project.  
+Over time, the team grows, and multiple projects on the same codebase are completed.  More often than not, this leads to competing projects: 
+two people will find it difficult to work at cross purposes in the same area of code without introducing tradeoffs.  
+And adding more people to the equation only makes the problem worse.  As Fred Brooks puts it, nine women can’t make a baby in one month. 
+
+Adv:
+---------------
+easily scale a portion(sre) of ur app horizontally. in case of big monolith apps it is very costly to scale the entire app bcoz h/w is costly.
+
+In monolithic app during a build, it takes huge amt of time to build it (typically 2 hours or even more) and if build failire 
+for a small change in a file requires u build entire proj again. with ms, only that service that requires change can be changed and redeployed 
+seamlessly. This allows high availability.
+
+
+It allows quick delivery of s/w during a sprint. it makes sw dev more agile by allowing to develop and deploy each service quickly. because there is 
+It allows development teams to work parlelly; in a monolithic u cant schedule a build until all the dev teams check in thier changes and then only a build 
+happens.
+This is known as tight coupling one module on other. If they can be decoupled, it becomes easy to deploy each service sofast.
+
+faster builds, fast iterations, perfectly suits agile.
+
+each service can be implemnted irrespective of a particular tech; with this each ms dev team is free to use the IDE, env of their own choice.
+
+easy to maitain in long run, as each micro addresses its own responsibilities; so code base is very small;
+code quality and readability improves bcoz each service .  and hence it is easy to understand.
+
+ur app is completely decentralized, decoupled, each service is highly scalable,available, reployable, independent and cheap. like GIT.
+
+System Resilience
+
+As your application is composed from multiple microservices, if some of them goes down only some features from your application will go down, not the entire application.
+
+DisAdv:
+-----------------------
+Increases so much of complexity. it is some times hard to debug and requires extensive set of tools.
+for ex: 
+u cant see the logs of entire app at one place.
+debugging may become deficult and 
+profiling tools like jprofiler are only limited to a JVM and cant be used to track the performance. u need more sophisticated tools.
+
+To debug, u have to start each microservice in debug mode; when u have to ddebug multiple such; dev life becomes crazy!
+Most microservices were a fail!
+ 
+who r using microservices?
+Netflix, uber, ebay, amazon,redhat, twitter and many large scale websites.
+http://microservices.io/patterns/microservices.html
+https://www.infoq.com/articles/microservices-intro
+https://smartbear.com/learn/api-design/api-gateways-in-microservices/
+https://martinfowler.com/articles/microservices.html
+https://blog.risingstack.com/why-you-should-start-using-microservices/
+https://www.javacodegeeks.com/2014/06/microservice-architecture-a-quick-guide.html
+
+
+
+https://spring.io/blog/2015/01/20/microservice-registration-and-discovery-with-spring-cloud-and-netflix-s-eureka
+
+
+
+
+Pros
+
+Microservice architecture gives developers the freedom to independently develop and deploy services
+A microservice can be developed by a fairly small team
+Code for different services can be written in different languages (though many practitioners discourage it)
+Easy integration and automatic deployment (using open-source continuous integration tools such as Jenkins, Hudson, etc.)
+Easy to understand and modify for developers, thus can help a new team member become productive quickly
+The developers can make use of the latest technologies
+The code is organized around business capabilities
+Starts the web container more quickly, so the deployment is also faster
+When change is required in a certain part of the application, only the related service can be modified and redeployed—no need to modify and redeploy the entire application
+Better fault isolation: if one microservice fails, the other will continue to work (although one problematic area of a monolith application can jeopardize the entire system)
+Easy to scale and integrate with third-party services
+No long-term commitment to technology stack
+
+
+Cons
+
+Due to distributed deployment, testing can become complicated and tedious
+Increasing number of services can result in information barriers
+The architecture brings additional complexity as the developers have to mitigate fault tolerance, network latency, and deal with a variety of message formats as well as load balancing
+Being a distributed system, it can result in duplication of effort
+When number of services increases, integration and managing whole products can become complicated
+In addition to several complexities of monolithic architecture, the developers have to deal with the additional complexity of a distributed system
+Developers have to put additional effort into implementing the mechanism of communication between the services
+Handling use cases that span more than one service without using distributed transactions is not only tough but also requires communication and cooperation between different teams
+The architecture usually results in increased memory consumption
+Partitioning the application into microservices is very much an art
+
+summary:
+Not all apps are required to be microservices, it varies from case to case. If ur app is seriously huge, then it is Ok to split it into micro services.
+It is same like configuring entire spring to just say "Hello world".
+bootomline: if ur app is complex, huge and u want to scale it then go for ms.
+
+
+Best practices:
+-------------------
+Use autoretry, request caching(whereever possible), circuit breakers(hystrix) to make fault tolerant.
+Use service registry(eureka), central config(cloud config), central logging(kibana),corelation ids.
+Use seperate DB for each service.
+Async (rabbit/activemq) everything possible to improve performance.
+Services shud be stateless, so that u can easily add or remove instances of the service as request volumes change. Services that are stateless are inherently easy to scale.
+It's also easy to replace a failing instance.
+Use a common monitoring platform for all services
+Use a common source control platform for all services
+
+Finally, services shud have loose coupling and high cohesion.Cohesion refers to what the class (or module) will do. Low cohesion would mean that the class does a great variety of actions and is not focused on what it should do. High cohesion would then mean that the class is focused on what it should be doing, i.e. only methods relating to the intention of the class.
+A service should have high cohesion. Closely related functionality should stay together in the same service.
+Make sure changing a shared library does not affect other services.
+
+Create a Separate Data Store for Each Microservice:
+-------------------------------------------------
+So u split ur app into micro services. Shud u also split ur database as well?? Yes. Why?
+ Sharing data storage is a sneaky source of coupling. 
+With a single data store You end up with the situation where if one team updates a database structure, other services that also use 
+that structure have to be changed too.
+
+
+Deploy in Containers
+--------------------------------
+Deploying microservices in containers is important because it means you just need just one tool to deploy everything. 
+As long as the microservice is in a container, the tool knows how to deploy it. It doesn’t matter what the container is. 
+That said, Docker seems very quickly to have become the de facto standard for containers.
+
+Service Interactions
+----------------------------
+    Transport data over HTTP, serialized using JSON or protobuf
+    For HTTP services, 500 series errors or timeouts mean the service is unhealthy
+    A service discovery mechanism makes it easy for services to find each other
+    Version all APIs.
+    Use limits on resources to fail fast before a service gets overloaded
+    Timouts minimize impact from downstream delays and failures
+    Circuit breakers give downstream services a break during tough times
+    Correlation IDs help you track requests across service logs
+    Auto retry failed requests with random retry intervals
+    Only talk to a services through exposed and documented APIs
+    
+ 
+
+
+
+
+
+
+
+
+
+
+
