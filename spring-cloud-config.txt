@@ -19,8 +19,6 @@ configuration:
 @EnableEurekaServer
 
 Ex config of eureka server in prod: 
-
-
 serv1 (for us-east)<------sync--------->serv2 (for us-west)<------sync--------> serv3 (for asia) : The reason for this is, if u have an outrage of nw in an entire region due to 
 some natural disaster or some thing, then ur app is resiliant enough to use services from the other regions.
 
