@@ -1,0 +1,43 @@
+
+Sleuth & zipkin:
+------------------
+The biggest problem of microservices is that slow performance, due to latency. some services may perform good and its dependent services may perform best. But to the end user
+the service is not performning well.
+So we need to be ale to identofy the misbehaving service(a service calling other for multiple times,not anticipated and also visulaize the DAG)
+ and also find the overall latency instead of just one service's, bcoz that's what the end user sees.
+
+
+Sleuth solves these problems by allowing u to troubleshoot any latency issues by allowing u to trace the call hierachy and the latency of calls 
+by providing the traceid, spanid's of each of the service calls in the form of debug logs. The traceid,spanids genrated in the debug logs are difficult to visualize
+hance sleuth integrates with zipkin to visulaize this log info.
+[s1,47ed1558dcefd1bf,bef7bcfc6fcc6e76,false]
+
+You can add sleuth to a serviceby just adding starter-sleuth dependency. with zipkin u can visualize service dependency, timing data. It shows u a summary also as follows:
+1. total time taken to process a request
+2. no of services involved in fulfilling the req
+3. Depth of call tree
+4. Total spans taken in the trace.
+
+The zipkin server stores the info in any of mysql, inmemory spance,elastic search, cassandra.
+
+Span: is an individual operation(a sinle event/A unit of work) that happened. It has timestamps when client has sent& when server has received and a 
+key-val info abt that operation.A span has a beginning & an end.  1 unit of send-receive= 1 span. 
+
+{{s1 sending = spanA, s2 received = spanB}, {s2 sent = spanC, s3 received = spanC}, {s3sent = spanD,s2 received = spanD }, {s2sent = spanE,s1 received = spanE }}
+-- 1 trace.
+
+1 complete thread of req processing is known as trace; involves many spans.
+Trace: is an end-end latency graph.It is madeup of spans.
+
+Annotations: client sent/server received/server sent/client received
+
+If u substract client sent-server received= u get n/w latency
+If u substract server sent - server received= u get performance of server
+
+Tracer: A tracer sits in your production instances and creats the spans.
+
+How spring can do this:
+-------------------------
+If u use Rxjava or Hystrix/Zuul or RestTemplate or Async/Sync task to call s2 from s1, then spring will record the calls in the background automatically.
+
+zuul: tracing tool and allows u to visualize any latecny issues, uses zipkin.

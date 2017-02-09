@@ -1,0 +1,86 @@
+Eureka server:
+--------------
+eureka (a central serv reg & disc service or lookup service): to decouple the dependecnies. alternatives: zookeeper, consul etc.
+It has been battle tested by netflix in production.
+
+It is a service registry that is a critical component of the Netflix infrastructure in the AWS cloud.
+
+eureka is used in cloud for locating services for the purpose of load balancing and failover of services.
+
+Ex: eureka server = chat server
+    each micro service = chat user.
+when u connect to server, all others in the room can see u. when u disconnect u r not visible in the room automatically.
+
+Why eureka?
+---------------------
+
+What is the need for Eureka?
+1. In AWS cloud, servers come and go. Unlike the traditional load balancers which work with servers with predefined IP addresses and host names, 
+in AWS load balancing requires much more sophistication in registering and de-registering servers with the load balancer on the fly. 
+As of AWS does has not provided such a dynamic load balancer eureka fills that gap. 
+
+2. When u split ur app into no of small micro services, it is obvious that u may have to deal with around 20 to 200 micro services each depending on others. This problem 
+even increase if we have dev,qa,stage, prod environments for each of these services.
+If each service maintining the location of information of other services in the app, then it becomes redundent data. Also, there is no central
+
+
+
+How eureka works?
+-------------------------
+
+Services register with Eureka and then send heartbeats to renew their leases every 30 seconds.If the client cannot renew the lease for a few times, 
+it is taken out of the server registry in about 90 seconds.The registration information and the renewals are replicated to all the Eureka nodes in the cluster. 
+The clients from any zone can look up the registry information (happens every 30 seconds) to locate their services (which could be in any zone) and make remote calls.
+
+Eureka clients are built to handle the failure of one or more Eureka servers. Since Eureka clients have the registry cache information in them, 
+they can operate reasonably well, even when all of the Eureka servers go down.
+
+
+Cluster:
+------------
+
+spring cloud config server is generally made highly avaialble by running multiple copies of it behind a traditional load balancer. 
+Unlike the above, eureka server itself is not run behind a loadbalancer, instead they are as actual multiple instances (peers). Ideally 3 instances, with 
+Each service containing the addresses of the other 2 eureka servers. With this each eureka server, periodically synchronizes the registry info it has with other servers.
+This is how they are highly available.
+
+Ex config of eureka server in prod: 
+serv1 (for us-east)<------sync--------->serv2 (for us-west)<------sync--------> serv3 (for asia) : The reason for this is, if u have an outrage of nw in an entire region due to 
+some natural disaster or some thing, then ur app is resiliant enough to use services from the other regions.
+eureka.client.serviceUrl: http://ip1:8080/eureka,http://ip2:8080/eureka
+eureka.client.registerWithEureka: true
+eureka.client.fetchRegisrtry:true
+
+
+In local u may be running only 1 instance in that case u can say: registerWithEureka=false & fetchRegisrtry:false to supress warning from spring that it is not syncing.
+
+Eureka Client:
+--------------
+use either @EnableEurekaServer or @EnableDiscoveryClient. 2nd is preferred than 1st. Bcoz it is not tied to just eureka. 
+
+eureka.client.serviceUrl.defaultZone=Any eureka server url or all of them seperated by comma.
+
+Ex: Calling other service through eureka: 
+@Autowired
+DiscoveryClient client;
+List<ServerInstance> instances = client.getInstances("clientId");
+restTemplate.getForObject(instances.get(0).getUri(),....)
+
+But this is very low level. Instead you would want to use feign client.
+
+Eureka server keeps regisrty information in the memory, it does not store it in any database or file.So once u restart it, all is gone. This is known as statful application. This is intended, to keep the info uptodate.
+
+Traditional Load balacning:
+----------------------------------
+Sits infront of a set of application servers and uses a trivial algorithm(ex: roundrobin) to route the requests. A loadbalancer can be either Software or
+some times organizations purchase high end costly hardware that performs more complex routing for superfast and reliable loadbalancing.
+Sw Ex: Apache, NgNx, 
+Hw Ex: F5, NSX, BigIP.
+
+Client side Load Balancing:
+-------------------------------
+
+
+
+
+

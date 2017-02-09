@@ -1,0 +1,209 @@
+Diff bw SOA & Webservices ?
+SOA (Service-Oriented Architecture) is an architectural pattern that makes possible for
+services to interact with one another independently. 
+
+Web Services is a realization of SOA concept, that leverages XML, JSON, etc. and common Internet protocols such as HTTP(S), SMTP, etc. 
+SOA is a system-level architectural style that tries to expose business. WOA is an interface-level architectural style that focuses on the means by which these service capabilities are exposed to consumers.
+
+SOAP Vs REST:
+REST supports different formats like text, JSON and XML; SOAP only supports XML;
+REST works only over HTTP(S) on a transport layer; SOAP can be used different protocols on a transport layer;
+REST works with resources, each unique URL is some representation of a resource; SOAP works with operations, which implement some business logic through different interfaces;
+SOAP based reads can’t be cached, for SOAP need to provide caching; REST based reads can be cached;
+SOAP supports SSL security and WS-security(Web Service-security); REST only supports SSL security;
+SOAP supports ACID (Atomicity, Consistency, Isolation, Durability); REST supports transactions, but it is neither ACID compliant nor can provide two phase commit. 
+
+How  to decide which one of web service to use REST or SOAP? 
+“REST vs SOAP” we can rephrased to "Simplicity vs Standard". Of course, "Simplicity" with REST at most cases wins, it wins in performance, scalability and 
+support for multiple data formats, but SOAP is favored where service requires comprehensive support for security (WS-security) and transactional safety (ACID).
+
+Can we send soap messages with attachments?
+Yes, we can send different formats such as PDF document, image or other binary file with soap messages as an attachment. Messages send using the binary data. SOAP messages is attached with MIME extensions that come in multipart/related.  
+
+How can you apply security to RESTful services   
+
+Some of the options available to use for securing a RESTful service, for now, are
+1. Basic Authentication
+   This type of Authentication will require transport level encryption(SSL), as user
+   credentials are to be sent via wire in plain text.
+   
+2. OAuth 1.0a / OAuth 2.0
+   OAuth 1.0a is using advanced encryption for passing token for authentication purposes.
+   OAuth 2.0 is using SSL for transport level security.
+   
+3. Custom/Third-party security protocol
+
+
+What happens if RestFull resources are accessed by multiple clients ? do you need to make it thread-safe?
+Since a new Resource instance is created for every incoming Request there is no need to make it thread-safe or add synchronization. multiple client can safely access RestFull resources concurrently.
+
+How to display custom error pages using RestFull web services ?
+In order to customize error you need to extend StatusService and implement getRepresentation(Status, Request, Response) method with your custom code now assign instance of your CustomStatusService to appropriate "statusService property".
+
+Explain what is REST and RESTFUL?
+
+it is relatively new aspect of writing web api.RESTFUL is referred for web services written by applying REST architectural concept.
+
+Htt status codes:
+200:It means, OK, shows success.
+201:It means, CREATED, when a resource is successful created using POST or PUT request. Return link to newly created resource using location header.
+204:It means, NO CONTENT, when response body is empty for example, a DELETE request.
+400:It means, BAD REQUEST, states that invalid input is provided e.g. validation error, missing data.
+401:It means, FORBIDDEN, states that user is not having access to method being used for example, delete access without admin rights.
+404:It means, NOT FOUND, states that method is not available.
+500: internal server error, due to exception.
+302: url redirect.
+
+Soem of Rest annotations:
+@PathParam, @FormParam, @MatrixParam, @QueryParam, @HeaderParam, @CookieParam.
+@Path("/book")
+public class Book {
+
+  @GET
+  @Path("{id}")
+  @Produces("text/xml") and @Consumes("text/xml")
+  public Book getBookInfo(@PathParam("id") String bookId) {
+      //return Book Instance by using value bookId.
+      return new Book();
+  }
+}
+
+What is a SOAP envelope element?
+SOAP envelop element is the root element of a SOAP message which defines the XML document as a SOAP message.
+An example:
+<?xml version="1.0"?>
+<soap:Envelope
+xmlns:soap="http://www.w3.org/2001/12/soap-envelope"
+soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
+  ...
+  Message information
+  ...
+</soap:Envelope>
+
+
+key characteristics of REST?
+REST is stateless, therefore the SERVER has no state (or session data)
+With a well applied REST API, the server could be restarted between two calls as every data is passed to the server
+Web service mostly uses POST method to make operations, whereas REST uses GET to access resources
+
+What are HTTP methods supported by REST?
+GET;POST;PUT;DELETE;OPTIONS;HEAD.
+DELETE: At the request URL it removes the resource
+OPTIONS: It indicates which techniques are supported
+HEAD: About the request URL it returns meta information
+POST : Should create new resource. Ideally return JSON with link to newly created resource. Same return codes as get possible. In addition : Return code 201 (CREATED) is possible.
+PUT : Update a known resource. ex: update client details. Possible Return Codes : 200(OK)
+
+What is the difference between PUT and POST?
+Need to use PUT when can update a resource completely through a specific resource. For example, if know that an 
+article resides at http://javahungry.blogspot.com/article/123, can PUT a new resource representation of this article through a PUT on this URL. 
+If do not know the actual resource location for instance, when add a new article, can use POST. 
+PUT is idempotent, while POST is not. It means if use PUT an object twice, it has no effect.
+
+“PUT”puts a file or resource at a particular URI and exactly at that URI.  If there is already a file or resource at that URI, PUT changes that file or resource.  If there is no resource or file there, PUT makes one
+
+POST sends data to a particular URI and expects the resource at that URI to deal with the request.  The web server at this point can decide what to do with the data in the context of specified resource
+
+
+What are disadvantages of REST web services?
+
+Some of the disadvantages of REST are:
+
+Since there is no contract defined between service and client, it has to be communicated through other means such as documentation or emails.
+Since it works on HTTP, there can’t be asynchronous calls.
+Sessions can’t be maintained.
+
+What is the use of Accept and Content-Type Headers in HTTP Request?
+
+These are important headers in Restful web services. Accept headers tells web service what kind of response client is accepting, so if a web service is capable of sending response in XML and JSON format and client sends Accept header as “application/xml” then XML response will be sent. For Accept header “application/json”, server will send the JSON response.
+
+Content-Type header is used to tell server what is the format of data being sent in the request. If Content-Type header is “application/xml” then server will try to parse it as XML data. This header is useful in HTTP Post and Put requests.
+
+
+What are frameworks available to implement REST web services? 
+Jersey, Restlet, EasyRest, CXF etc.
+
+What is the Jersey framework?
+Jersey is a JAX-RS Reference Implementation. Instead of being a simple rest impl, it supports for the REST MVC pattern, which would allow to return a View from Jersey services rather than just data.
+
+How to get HTTP request header in JAX-RS ?
+use @Context HttpHeaders , HttpHeaders HttpServletRequest.
+
+How to download file in JAX-RS?
+@GET
+@Path("/get")
+@Produces("image/png")
+public Response getFile() {
+		ResponseBuilder response = Response.ok((Object) new File(FILE_PATH));
+		response.header("Content-Disposition","attachment; filename=image_from_server.png");
+		return response.build();
+ }
+What is difference between top-down(contrast 1st) and bottom-up(code 1st) approach of developing web services ?
+While creating a web service:
+Top-down means you start with a WSDL and then create all the Java all the way down.Bottom-up means you start writing ur Java methods, and generate the WSDL from it.
+You can create the wsdl using the WSDL Editor. You can then use the Web services wizard to create the Web service and skeleton Java classes to which you can add the required code.
+In this way you have more control over how business logic is being handled by creating WSDL first.
+
+While consuming:
+u have no choice just u have to use top down, using the wsdl from the server.
+
+How do organizations move into web service?
+2 ways in which an organization can move into Web Services:
+Creating a new web service from scratch (Contract First): The developer creates the functionalities of the services as well as preparing a document to 
+describe those services.
+Exposing an existing functionality through a web service (Code First): Here, the functionalities of the service already exist. Only the service description 
+needs to be implemented.
+
+Code first approach versus contract first approach:
+-----------------------------
+Code first (Bottom Up) approach allows you to reuse your investment by exposing your existing application. Credit Card System is an existing Application 
+with Proven business value. Competitive pressure is moving Credit Card System to expose some of this business functionality Like (Credit Card Number Validation) 
+as web service. The implementation class already exists, all that is needed is to create a WSDL and expose the class as web service.
+Contract First (Top Down) often termed as “Pure Approach” is the correct way to build new web service from scratch. This Approach starts with the WSDL 
+(the contract) by defining operation message and so forth. Then you build the endpoint interface and finally the implementation class.
+Ex: 
+Axis2 ex:
+
+@WebService (name="CheckCard",targetNamespace="http://ccheck.axis2.ibm.com")
+public interface CheckSEI {
+	public String doCheck(String targetName);
+}
+@WebService(serviceName = "CheckCardService",
+		portName = "cport",
+		endpointInterface = "com.ibm.axis2.ccheck.CheckSEI",
+		targetNamespace = "http://ccheck.axis2.ibm.com")
+
+public class CheckCard implements CheckSEI{
+
+}
+Now create a services.xml file inside META-INF directory as shown in Listing 3.
+Listing 3. Services.xml
+<service>
+   <parameter name="ServiceClass">com.ibm.axis2.ccheck.CheckCard</parameter>
+   <operation name="doCheck">
+      <messageReceiver class="org.apache.axis2.rpc.receivers.RPCMessageReceiver"/>
+   </operation>   
+</service>
+
+Now start server and http://localhost:8080/urapp/services/CheckCardService?wsdl & http://localhost:8080/urapp/axis2-admin/listService
+
+Client:
+Stub Generation
+Open command prompt and move to the <AXIS2_HOME>bin| directory and type the following command:
+wsdl2java.bat -uri http://localhost:8080/urapp/services/CheckCardService?wsdl -o client
+CheckCardServiceCallbackHandler.java, CheckCardServiceStub.java and ExceptionException.java are generated inside <AXIS2_HOME>|bin|src|com|ibm|axis2|ccheck| 
+directory.
+
+Writing client code:
+create a eclipse proj, click on Add External JARs and select all the jars from <AXIS2_HOME>lib| and then click OK.
+Now copy the Generated Stubs and paste it in ur project.
+
+public class TestClient {
+     public static void main(String[] args) throws Exception {
+         CheckCardServiceStub stub = new CheckCardServiceStub();
+         CheckCardServiceStub.DoCheck  request = new CheckCardServiceStub.DoCheck();
+        request.setArgs0("1231243234234");
+       CheckCardServiceStub.DoCheckResponse response  = stub.doCheck(request);
+        System.out.println(response.get_return());
+    }
+}
