@@ -1,0 +1,35 @@
+What is OAuth2?
+It is a protocol for conveying ur authorization. It is a standard. U r conveying ur authorization in the form a token.
+OAuth is not an authentication scheme, its an authorization mechsihm provided to users in the form of tokens for a short period of time.
+Ex: U try to use ebay, which takes u to google(auth server), 
+
+The protocol:
+
+a user authenticates once on an authorization server, and the authorization serevr has  user session mapped to a token, any furthur api call to the 
+resource server is made with that token and the resource server can contact authorization server to see if the user is authorized.
+
+
+1 auth server(google) serves many applications(resource servers).
+
+Roles:
+------------
+client: 
+Resource Owner: The ebay user.
+Resource Server: ebay (takes a token and allows access to its resources based on the token's scope)
+Auth Server : (when client wants to access a resource on resource server, it takes the user to auth server, where user provides his credentials of auth server
+then authserver(the user must already be registred with the auth server in advance.) returns an access token+refresh token to the resource server.)
+
+Once the resource owner has the token, it allows the user as long as the token does not expire. once it expires, it sends the refresh token to the authserver 
+to obtain a fresh access token+refresh token.
+
+scope: permission/access ctrl, it is injected in to the token itself.	
+
+client id/secret: 
+----------------
+2 micro services: s2 register with auth server and get client id & secret. when s1 asks a resource on s2, s2 takes it to authserver and 
+s1 has to provide its uname/pwd or simply its client id/secret(how cool!, so no need of s1 having a uname/pwd bcoz it is also a resource owner and hence can
+use its uname/pwd as clientid/secret). in this case, authserver has to handle 4(resourec server's clientid,secreat& client's clientid,secret.)
+In thiscae, s1 asks a resource on s2 with its clientid/secret and s2 then calls authserver with s1's clinet id,secret & s2's clientid&secret in 1 call.
+
+other ex: ebay reister with google, get clientid/secret. when u want to access reource on ebay, it takes u to google and u provide ur uname/pwd.
+in this case, authserver has to handle 4(resourec server's clientid,secreat& user's uname,pwd.)
