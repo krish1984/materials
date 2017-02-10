@@ -7,3 +7,7 @@ Spring Cloud allows developers to quickly implement these boiler plate patterns 
 Round-robin load-balancing is just one option for ribbon client. You might instead require some notion of a leader node, and leadership election. Spring Cloud aims provides support for that kind of coordination, as well.
 
 Service registration and client-side load-balancing are just one of the things that Spring Cloud does to promote more resilient service-to-service calls. We have not looked at its support single-sign on and security, distributed locks and leadership election, reliability patterns like the circuit breaker, and much more.
+
+
+https://exampledriven.wordpress.com/2016/07/01/spring-cloud-eureka-ribbon-feign-example/
+http://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html
