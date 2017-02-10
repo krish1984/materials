@@ -1,0 +1,8 @@
+http://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html
+http://ankushs92.github.io/spring-boot,hytrix,microservices,circuit-breaker/2016/10/22/hystrix-spring-boot-circuit-breaker.html
+https://spring.io/guides/gs/circuit-breaker/
+https://blog.de-swaef.eu/the-netflix-stack-using-spring-boot-part-2-hystrix/
+http://callistaenterprise.se/blogg/teknik/2015/04/15/building-microservices-with-spring-cloud-and-netflix-oss-part-2/
+http://www.baeldung.com/spring-cloud-netflix-hystrix
+https://aggarwalarpit.wordpress.com/2016/06/12/microservices-fault-and-latency-tolerance-using-netflix-hystrix/
+https://dzone.com/articles/the-netflix-stack-using-spring-boot-part-2-hystrix
