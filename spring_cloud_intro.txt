@@ -2,3 +2,8 @@ Spring Cloud provides tools for developers to quickly build some of the common p
 (e.g. configuration management, service discovery, circuit breakers, intelligent routing, micro-proxy, control bus, one-time tokens, 
 global locks, leadership election, distributed sessions, cluster state). 
 Spring Cloud allows developers to quickly implement these boiler plate patterns and stand up services.
+
+
+Round-robin load-balancing is just one option for ribbon client. You might instead require some notion of a leader node, and leadership election. Spring Cloud aims provides support for that kind of coordination, as well.
+
+Service registration and client-side load-balancing are just one of the things that Spring Cloud does to promote more resilient service-to-service calls. We have not looked at its support single-sign on and security, distributed locks and leadership election, reliability patterns like the circuit breaker, and much more.
