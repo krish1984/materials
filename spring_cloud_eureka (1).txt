@@ -80,7 +80,9 @@ Hw Ex: F5, NSX, BigIP.
 Client side Load Balancing:
 -------------------------------
 When u r using eureka client, u r also using a client side load balancer(called ribbon client), which would take all the instances of a service from the eureka client, and make calls to them in round-robin fashion. 
-If the basic round-robin load balancing is not sufficient for your needs, u can customize it. In AWS cloud, make sure you retry on failures and keep the timeouts low, because there could be scenarios where Eureka server could return instances that no longer exists in the case of outages.
+If the basic round-robin load balancing is not sufficient for your needs, u can customize it. Round-robin load-balancing is just one option for ribbon client. You might instead require some notion of a leader node, and leadership election. Spring Cloud aims provides support for that kind of coordination, as well.
+
+In AWS cloud, make sure you retry on failures and keep the timeouts low, because there could be scenarios where Eureka server could return instances that no longer exists in the case of outages.
 
 
 
