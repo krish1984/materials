@@ -19,13 +19,12 @@ configuration:
 @EnableEurekaServer
 
 Ex config of eureka server in prod: 
-serv1 (for us-east)<------sync--------->serv2 (for us-west)<------sync--------> serv3 (for asia) : The reason for this is, if u have an outrage of nw in an entire region due to 
-some natural disaster or some thing, then ur app is resiliant enough to use services from the other regions.
+serv1 (for us-east)<------sync--------->serv2 (for us-west)<------sync--------> serv3 (for asia) : The reason for this is, if u have an outrage of nw in an entire region due to some natural disaster or some thing, then ur app is resiliant enough to use services from the other regions.
 
 The config of eureka server is stored in local only.
 application.properties:
 ---------------
-eureka.client.serviceUrl: http://ip1:8080/eureka,http://ip2:8080/eureka
+eureka.client.serviceUrl: http://ip1:8080/eureka,http://ip2:8080/eureka (note that they must end with /eureka ifnot, services wont be able reach the eureka server)
 eureka.client.registerWithEureka: true
 eureka.client.fetchRegisrtry:true
 In local u may be running only 1 instance in that case u can say: registerWithEureka=false & fetchRegisrtry:false to supress warning from spring that it is not syncin and to tell eureka to not register with ‘itself’, because our eureka server should be acting as a server.
