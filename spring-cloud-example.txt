@@ -28,8 +28,7 @@ application.properties:
 eureka.client.serviceUrl: http://ip1:8080/eureka,http://ip2:8080/eureka
 eureka.client.registerWithEureka: true
 eureka.client.fetchRegisrtry:true
-In local u may be running only 1 instance in that case u can say: registerWithEureka=false & fetchRegisrtry:false to supress warning from spring 
-that it is not syncing.
+In local u may be running only 1 instance in that case u can say: registerWithEureka=false & fetchRegisrtry:false to supress warning from spring that it is not syncin and to tell eureka to not register with ‘itself’, because our eureka server should be acting as a server.
 
 3. service1:
 ----------------
