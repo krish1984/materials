@@ -85,5 +85,5 @@ If the basic round-robin load balancing is not sufficient for your needs, u can 
 In AWS cloud, make sure you retry on failures and keep the timeouts low, because there could be scenarios where Eureka server could return instances that no longer exists in the case of outages.
 
 
-
+Eureka client also sends a cancel request to Eureka server on shutdown. This removes the instance from the server's instance registry thereby effectively taking the instance out of traffic.
 
