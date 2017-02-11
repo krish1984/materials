@@ -1,0 +1,2 @@
+http://www.mscharhag.com/spring/spring-retry
+http://www.mastertheboss.com/jboss-frameworks/spring/using-spring-retry-to-consume-rest-services
