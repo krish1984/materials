@@ -1,0 +1,57 @@
+﻿Bootstrapping a sping app is made easier!
+
+A high level abstraction over maven using spring plugins to simplify maven config&dependencies
+In built tomcat,jetty servers, no need of external server to run ur app.
+Convention over config, or opiniated defaults config, removes the need of xml files altogether. No need of even writing a web.xml to make a webapp up&running using boot. 
+It is taken care!
+
+But still, Allows u to ovverride defaults.
+Remember how tedious&time consuming it was to setup a spring mvc app or spring security app(writing all dependencies ur self, writing all the boilerplate config urself).
+Now they can be setup and make it up and running in no more than a few minutes!!!
+
+Easy integration with any sping projects (aka spring eco system)like batch, cloud, data, orm, security...etc.
+
+some dependencies:
+
+spring-boot-starter-web
+spring-boot-starter-tomcat
+spring-boot-starter-test
+
+some Plugins:
+spring-boot-maven-plugin
+
+with spring boot, good thing is when you add a dependency (e.g. Spring security), it make fair assumptions and automatically configure some defaults for you. 
+So you can start immediately.
+For each spring-boot-starter-* dependency in the POM file, Spring Boot executes a default AutoConfiguration class. 
+AutoConfiguration classes use the *AutoConfiguration pattern, where * represents the library. 
+For example, the autoconfiguration of spring security is done through SecurityAutoConfiguration.
+
+At the same time, if you don’t want to use auto configuration for any project, it makes it very simple. Just use exclude = SecurityAutoConfiguration.class like below.
+
+@SpringBootApplication (exclude = SecurityAutoConfiguration.class)
+public class SpringBootDemoApplication {}
+
+You can override default configuration values using the application.properties file in src/main/resources folder.
+
+
+
+@SpringBootApplication is a convenience annotation that adds all of the following:
+
+@Configuration tags the class as a source of bean definitions for the application context.
+
+@EnableAutoConfiguration tells Spring Boot to start adding beans based on classpath settings, other beans, and various property settings.
+In other words, This annotation tells Spring Boot to “guess” how you will want to configure Spring, based on the jar dependencies that you have added. 
+For ex, The maven dependency spring-boot-starter-web adds Tomcat and Spring MVC jars in classpath, the auto-configuration will assume that you are developing a web application and setup Spring accordingly.
+
+For ex, in legacy apps you would add @EnableWebMvc for a Spring MVC app, but Spring Boot adds it automatically when it sees spring-webmvc on the classpath. 
+This flags the application as a web application and activates key behaviors such as setting up a DispatcherServlet.
+
+
+
+
+@ComponentScan tells Spring to look for other components, configurations, and services in the the hello package, allowing it to find the controllers.
+The main() method uses Spring Boot’s SpringApplication.run() method to launch an application. Did you notice that there wasn’t a single line of XML? No web.xml file either. This web application is 100% pure Java and you didn’t have to deal with configuring any plumbing or infrastructure.
+
+
+
+bootstrap.proeprties is loaded 1st and then application.properties. If u see that some of ur config done in app.props is not working, then try adding that info in bootstrap.props and try!

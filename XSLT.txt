@@ -1,0 +1,45 @@
+xslt tags:
+-----------
+xslt (.xsl)is a stylesheet for xml docs same like css for html. It is referenced by XML docs at the root so that when we open the xml in browsers, 
+they know how to render it. Every xslt doc starts with tag <xsl:stylesheet>. XSLT is usually used to convert xml to xhtml.
+
+The xml doc uses the <?xml-stylesheet type="text/xsl" href="cdcatalog.xsl"?> to link to its stylesheet.
+
+<xsl:template: used to define a template that should be used to render, when a an element in the XML is found.
+<xsl:template match="/"> tells to match root element.
+
+<xsl:for-each: 
+	<xsl:for-each select="catalog/cd" or select="catalog/cd[artist='Bob Dylan']" or "xpath expre" >
+        <tr>
+          <td><xsl:value-of select="title"/></td>
+          <td><xsl:value-of select="artist"/></td>
+        </tr>
+      </xsl:for-each>
+	  
+<xsl:value-of: value-of a tag.
+
+<xsl:if
+	<xsl:for-each select="catalog/cd">
+      <xsl:if test="price &gt; 10">
+        <tr>
+          <td><xsl:value-of select="title"/></td>
+          <td><xsl:value-of select="artist"/></td>
+          <td><xsl:value-of select="price"/></td>
+        </tr>
+      </xsl:if>
+	  
+<xsl:choose:
+----------------------
+<xsl:choose>
+        <xsl:when test="price &gt; 10">
+          <td bgcolor="#ff00ff">
+          <xsl:value-of select="artist"/></td>
+        </xsl:when>
+        <xsl:when test="price &gt; 9">
+          <td bgcolor="#cccccc">
+          <xsl:value-of select="artist"/></td>
+        </xsl:when>
+        <xsl:otherwise>
+          <td><xsl:value-of select="artist"/></td>
+        </xsl:otherwise>
+      </xsl:choose>
