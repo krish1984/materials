@@ -1,11 +1,3 @@
-http://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html
-http://ankushs92.github.io/spring-boot,hytrix,microservices,circuit-breaker/2016/10/22/hystrix-spring-boot-circuit-breaker.html
-https://spring.io/guides/gs/circuit-breaker/
-https://blog.de-swaef.eu/the-netflix-stack-using-spring-boot-part-2-hystrix/
-http://callistaenterprise.se/blogg/teknik/2015/04/15/building-microservices-with-spring-cloud-and-netflix-oss-part-2/
-http://www.baeldung.com/spring-cloud-netflix-hystrix
-https://aggarwalarpit.wordpress.com/2016/06/12/microservices-fault-and-latency-tolerance-using-netflix-hystrix/
-https://dzone.com/articles/the-netflix-stack-using-spring-boot-part-2-hystrix
 Hystrix:
 is a  fault tolerance library from netflix that implements the circuit breaker pattern. 
 In a typical microservice based system, A service failure(can be due to its internal error/excception or the service that method is calling is down) in the lower 
@@ -83,3 +75,12 @@ This property sets the error percentage at or above which the circuit should tri
         LOG.debug("Seems like our notifications-service is down: ");
         return "notification stuff down";
     }
+    
+    
+    
+Note: How u leverage adv of both hystrix & retry templates?
+
+use hystrix on the methods that requires another servie call, with in those methods, make the calls using retrytemplate. with this, retry template tries its best before hystrix takes over  to call fallback. when 100 concurrent req come, and if the called service is already loaded with requests, then retry template would try it 5 times and if fails, anyway hystrix is there to makesure 
+
+hystrix goes to fallback even when a req fails for 1st time and that too 1 try.
+what we r sayng is, before concluding a req failed, give it retry, so that it may succede.
