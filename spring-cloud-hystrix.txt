@@ -6,3 +6,80 @@ http://callistaenterprise.se/blogg/teknik/2015/04/15/building-microservices-with
 http://www.baeldung.com/spring-cloud-netflix-hystrix
 https://aggarwalarpit.wordpress.com/2016/06/12/microservices-fault-and-latency-tolerance-using-netflix-hystrix/
 https://dzone.com/articles/the-netflix-stack-using-spring-boot-part-2-hystrix
+Hystrix:
+is a  fault tolerance library from netflix that implements the circuit breaker pattern. 
+In a typical microservice based system, A service failure(can be due to its internal error/excception or the service that method is calling is down) in the lower 
+level of services can cause cascading failure all the way up to the user. 
+When call failures to a particular service reach a certain threshold (20 failures in 5 seconds is the default in Hystrix), the circuit opens and the call is not made giving the failing service time to heal.
+and the fallback is called during this time.After some amount of time, the next single request is let through (this is the HALF-OPEN state). 
+If the request fails, the circuit-breaker returns to the OPEN state for the duration of the sleep window. If the request succeeds, the circuit-breaker 
+transitions to CLOSED and all requests made against that circuit-breaker are passed through.
+
+features:
+
+Hystrix calls fallback when method fails,1st time itself. It works as a catch block for the method. 
+if u call failing method for 10 times, the methd is called 10 times and hystrix calls the fallback 10 times.
+after that, hystrix seemlessy will not call failing method instead only calls fallback for 5sec after which It checks the failig method if it has healed,
+if it still throws the error hysterix will again open the circuit.
+
+3. if the no of req hitting the metod reaches a threashold(default:20), then opens circuit for 5sec. during thse 5sec, it only calls fallback.
+2. prevents the cascaded failures of all the services due to failure of a single service.
+3. allows us to provide fallback mechanissm.
+4. It automatically checks if the service is back after some time.
+5. Note: Hystrix doesnt provide the auto retry option for simplicity. You need to use spring retry.
+
+
+http://callistaenterprise.se/blogg/teknik/2015/04/10/building-microservices-with-spring-cloud-and-netflix-oss-part-1/
+http://callistaenterprise.se/blogg/teknik/2015/04/15/building-microservices-with-spring-cloud-and-netflix-oss-part-2/
+Note:
+1.Setting a fallback is optional legally,but it doesnt make any sense to not define one! The fallback is used when you would rather return something like stale data from a cache as opposed to throwing an exception.
+2. The actual method and fallback must have same params.
+3. Hystrix catches any exceptions thrown by ur method, suppresses them and calls ur callback. so u would want to catch and log them in ur act method,before hystrix takes over.
+
+
+When using hystrix, it internally uses hystrix-javanica, Which is actually a wrapper around native Hystrix. Hystrix javanica has the benefits of giving us annotational support 
+for Hystrix, using aspects.
+
+The default way to use hysterix, would be to annotate a method with@HystrixCommand. In this annotation, you can define a method that can be called when the annotated method fails (read: throws an exception).
+
+@HystrixCommand(fallbackMethod = "statusNotFound",
+				commandProperties = {
+					@HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value="2000"),
+					@HystrixProperty(name="circuitBreaker.requestVolumeThreshold",value="5"),//
+					@HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds",value="10000")
+				})
+
+public List<Book> getInfo() {  
+    return new RestTemplate()
+				.getForEntity(new URI("http://localhost:8081/service2"), List.class).getBody();
+}
+public List<Book> statusNotFound() {  
+    return new ArrayList();
+}
+Upon calling the method, Hystrix will determine whether the circuit is open or closed. If it's closed, it will not execute the function, but instead route the 
+flow to the fallback.
+
+Note:
+requestVolumeThreshold:This property sets the minimum number of requests in a rolling window that will trip the circuit.
+For example, if the value is 20, then if only 19 requests are received in the rolling window (say a window of 10 seconds) the 
+circuit will not trip open even if all 19 failed.
+
+errorThresholdPercentage
+This property sets the error percentage at or above which the circuit should trip open and start short-circuiting requests to fallback logic.
+
+
+@HystrixCommand also provides the ability to work with asynchronous requests. 
+@HystrixCommand(groupKey = "notification-service", fallbackMethod = "statusPageDown")
+    public Observable<String> statusPageUrl() {
+        return new ObservableResult<String>() {
+            @Override
+            public String invoke() {
+                return discoveryClient.getNextServerFromEureka(SERVICE_NAME, false)
+                        .getStatusPageUrl();
+            }
+        };
+    }
+    public String statusPageDown() {
+        LOG.debug("Seems like our notifications-service is down: ");
+        return "notification stuff down";
+    }
