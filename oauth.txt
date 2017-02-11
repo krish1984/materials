@@ -33,8 +33,13 @@ Flows:
 1. when user tries to access a secure resource on the UI console webapp(@EnableOAuth2Sso), the webapp checks if there is a httpsession for that user, if not found then it sends a redirect to the google/oauth/authorize?clientid=..&grant-type=code&redirect-uri=, through the browser.
 2. This redirect takes the user to google confirm page. The user provides his credentials and logins into google. google now sends a auth code by sending a browser redirect to the app provided redirect uri. where webapp can take use this code and again send a request to google/oauth/toke?clientid=..&clientsecret=..&code=..&scope=. Note that this request is from the server itself(user/browser is not aware of this) and gets the token.
 3. Once the edgeserver(service1) has this token, from now onwards if it wants to access a service on service2, then it makes the API call to service2 with a Authorization: Bearer #token. 
-4. service2 is a @EnableResourceServer and sends this token to google/oauth/userinfo to see if the token is valid.If it valid, google sends the userinfo and the service is provided.
+4. service2 is a @EnableResourceServer and sends this token to google/oauth/userinfo (headers: Authorization: Bearer + token) to see if the token is valid.If it valid, google sends the userinfo and the service allows access to the requested resorce.
 
 More links:
 http://callistaenterprise.se/blogg/teknik/2015/04/27/building-microservices-part-3-secure-APIs-with-OAuth/
 
+No Browser: (headless)
+1. When no browser, then any of resource owner password crede,client credentials flows can be used.
+2. The user must trust the webapp(service1), and provide his uname/pwd to it. what this means is that the applcation itelf, provides the user credentials to the authserver inorder to get the access token.
+3. send google/token?grant-type=password&client-id=..&uname=..&pwd=.. and once it gets this token, uses it to provide services to its downstream systems and also propogates the token while calling its upstream systems.
+4. The upstream service, before allowing the access calls the google/oauth/userinfo (headers: Authorization: Bearer + token). If userinfo is reurned allows access.
