@@ -3,13 +3,16 @@ It is a protocol for conveying ur authorization. It is a standard. U r conveying
 OAuth is not an authentication scheme, its an authorization mechsihm provided to users in the form of tokens for a short period of time.
 Ex: U try to use ebay, which takes u to google(auth server), 
 
-The protocol:
+why oauth instead of simple uname/pwd for microservices?
+1. Allows single sign on.
+2. users can access client apps with sharing their credentials.
+3. best suits for microservices due to followingr eason:
+If we use http basic auth for microservices, each service while accessing other service has to send its uname/pwd, which the other has to validate it against the DB or a auth server. sending the uname/pwd over nw is vulnerable to MIM attacks.
 
-a user authenticates once on an authorization server, and the authorization serevr has  user session mapped to a token, any furthur api call to the 
-resource server is made with that token and the resource server can contact authorization server to see if the user is authorized.
+4. with oauth, u have more secure auth in place, it has to validate both client&user credentails.(in auth flow) and that too u r only working with short lived tokens, then it takes time for the hacker to obtain new token. Also, if u doubt that there is a security breach  happend u can invalidate all the tokens and force all the clients to obtain their new token, on the fly with out disturbing the endusers, which is impossible if u r using uname/pwd.
 
 
-1 auth server(google) serves many applications(resource servers).
+Better way: The user authenticates on a authorization service, which maps the user session to a token. Any further API call to the resource services must provide this token. The services are able to recognize the provided token and ask the authorization service, which authorities this token grants, and who is the owner of this token.
 
 Roles:
 ------------
@@ -22,14 +25,16 @@ then authserver(the user must already be registred with the auth server in advan
 Once the resource owner has the token, it allows the user as long as the token does not expire. once it expires, it sends the refresh token to the authserver 
 to obtain a fresh access token+refresh token.
 
-scope: permission/access ctrl, it is injected in to the token itself.	
+OAuth flows:
+-------------
+Typical browser based: (aka Auth flow):
+Scenario: U have 2 microservices: UI console service(webapp) service1 & ejb service(service2) & U r using google for auth.
+Flows:
+1. when user tries to access a secure resource on the UI console webapp(@EnableOAuth2Sso), the webapp checks if there is a httpsession for that user, if not found then it sends a redirect to the google/oauth/authorize?clientid=..&grant-type=code&redirect-uri=, through the browser.
+2. This redirect takes the user to google confirm page. The user provides his credentials and logins into google. google now sends a auth code by sending a browser redirect to the app provided redirect uri. where webapp can take use this code and again send a request to google/oauth/toke?clientid=..&clientsecret=..&code=..&scope=. Note that this request is from the server itself(user/browser is not aware of this) and gets the token.
+3. Once the edgeserver(service1) has this token, from now onwards if it wants to access a service on service2, then it makes the API call to service2 with a Authorization: Bearer #token. 
+4. service2 is a @EnableResourceServer and sends this token to google/oauth/userinfo to see if the token is valid.If it valid, google sends the userinfo and the service is provided.
 
-client id/secret: 
-----------------
-2 micro services: s2 register with auth server and get client id & secret. when s1 asks a resource on s2, s2 takes it to authserver and 
-s1 has to provide its uname/pwd or simply its client id/secret(how cool!, so no need of s1 having a uname/pwd bcoz it is also a resource owner and hence can
-use its uname/pwd as clientid/secret). in this case, authserver has to handle 4(resourec server's clientid,secreat& client's clientid,secret.)
-In thiscae, s1 asks a resource on s2 with its clientid/secret and s2 then calls authserver with s1's clinet id,secret & s2's clientid&secret in 1 call.
+More links:
+http://callistaenterprise.se/blogg/teknik/2015/04/27/building-microservices-part-3-secure-APIs-with-OAuth/
 
-other ex: ebay reister with google, get clientid/secret. when u want to access reource on ebay, it takes u to google and u provide ur uname/pwd.
-in this case, authserver has to handle 4(resourec server's clientid,secreat& user's uname,pwd.)
