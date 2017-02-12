@@ -2,3 +2,14 @@ http://www.baeldung.com/spring-cloud-rest-client-with-netflix-ribbon
 https://dzone.com/articles/spring-cloud-netflix-load-balancer-with-ribbonfeig
 https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers
 https://github.com/Netflix/ribbon/wiki/Programmers-Guide
+
+
+1. Ribbon allows both static & dynamic ips. If u have eureka-client in the classpath, then it fallsback to dynamic list and seemlessly integrates with eureka.
+Ex static config in app.props: clienid.ribbon.listOfServers=s2-1.com,s2-2.com
+
+2. Filtered server List: spring cloud default strategy, is same zone.
+3. Ping: If u have eureka-client in the classpath, ribbon depends on the eureka(periodically requests it) to get the available servers list. But some times eureka may not be up to date(it takes few sec for eureka to remove a down service from its list). You can override the ping property to directly ping each server periodically.
+
+4. Load Balancer:  LoadBalancer is what that actually selects a url. For this it uses a rule. Ribbon 1st retrievs the list of filtered servers and uses a rule to pick(Weighttime, roundrobin, random) one.
+
+The default sping cloud's load balancer is ZonAwareLoadBalancer and the default rule is RoundRobin.
