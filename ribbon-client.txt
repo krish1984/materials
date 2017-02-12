@@ -1,3 +1,4 @@
 http://www.baeldung.com/spring-cloud-rest-client-with-netflix-ribbon
 https://dzone.com/articles/spring-cloud-netflix-load-balancer-with-ribbonfeig
 https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers
+https://github.com/Netflix/ribbon/wiki/Programmers-Guide
