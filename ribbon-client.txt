@@ -13,3 +13,5 @@ Ex static config in app.props: clienid.ribbon.listOfServers=s2-1.com,s2-2.com
 4. Load Balancer:  LoadBalancer is what that actually selects a url. For this it uses a rule. Ribbon 1st retrievs the list of filtered servers and uses a rule to pick(Weighttime, roundrobin, random) one.
 
 The default sping cloud's load balancer is ZonAwareLoadBalancer and the default rule is RoundRobin.
+
+check : DefaultClientConfigImpl class for details or search for "Spring Cloud Netflix provides the following beans by default for ribbon" in the page : http://cloud.spring.io/spring-cloud-netflix/spring-cloud-netflix.html. They have VERY GOOD description.
