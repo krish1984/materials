@@ -38,6 +38,7 @@ Tracer: A tracer sits in your production instances and creats the spans.
 
 How spring can do this:
 -------------------------
-If u use Rxjava or Hystrix/Zuul or RestTemplate or Async/Sync task to call s2 from s1, then spring will record the calls in the background automatically.
+If u use Rxjava or Hystrix or RestTemplate or Async/Sync task to call s2 from s1, then spring will record the calls in the background automatically.
 
-zuul: tracing tool and allows u to visualize any latecny issues, uses zipkin.
+
+
