@@ -18,7 +18,7 @@ You can add sleuth to a serviceby just adding starter-sleuth dependency. with zi
 3. Depth of call tree
 4. Total spans taken in the trace.
 
-The zipkin server stores the info in any of mysql, inmemory spance,elastic search, cassandra.
+The zipkin server can be configured to store the trace/span info in any of mysql, inmemory,elastic search, cassandra.
 
 Span: is an individual operation(a sinle event/A unit of work) that happened. It has timestamps when client has sent& when server has received and a 
 key-val info abt that operation.A span has a beginning & an end.  1 unit of send-receive= 1 span. 
