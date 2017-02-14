@@ -1,7 +1,7 @@
 Need of API gateway:
 ------------------------
 
-We want to expose our indivual services to the public N/W, thera are no of concerns in it:
+We want to expose our indivual services to the public N/W, thera are no of concerns in it: If you dont want to expose ur services to an outside network, i dont think u need an API gateway. It just only adds more complexity, than solving ur problem.
 
 1. We shud not directly expose the API to public, we need some wall in between which authenticates the external clients.
 2. When a client is dependent on multiple services, it wud need to make multiple trips.
