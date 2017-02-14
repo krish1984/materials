@@ -1,0 +1,17 @@
+Need of API gateway:
+------------------------
+
+We want to expose our indivual services to the public N/W, thera are no of concerns in it:
+
+1. We shud not directly expose the API to public, we need some wall in between which authenticates the external clients.
+2. When a client is dependent on multiple services, it wud need to make multiple trips.
+3. There can be multiple dissimilar clients calling the same API, but each having diffrent needs some want to assemble multiple calls, some dont want.
+
+So we need somthing in between, that takes care of all of these issues. So API gateway(zuul),
+
+1. provides a single point of contact to our system, takes care of authentication of requests to services.
+2. cater neepds of different types of clients, by assembling multiple requests into one call based on clients needs.
+3. accept requests and route them to appropriate services(aka reverse proxyig).
+4. Cache data to reduce load on services when needed.
+
+
