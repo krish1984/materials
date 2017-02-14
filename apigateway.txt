@@ -13,6 +13,7 @@ So we need somthing in between, that takes care of all of these issues. So API g
 2. cater neepds of different types of clients, by assembling multiple requests into one call based on clients needs.
 3. accept requests and route them to the real services(aka reverse proxy).
 4. Cache data to reduce load on services when needed.
+5. protocol translation.
 
 Zuul: simply put it is a router. Add starter-zuul(includes eureka client i.e ribbon client as well!) and @EnablezullProxy. client ids become uris. outside world talk to zuul using client ids and zuul talks to real services with the address its ribbon returns to it.
 
