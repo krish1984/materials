@@ -4,7 +4,7 @@ https://github.com/Netflix/ribbon/wiki/Working-with-load-balancers
 https://github.com/Netflix/ribbon/wiki/Programmers-Guide
 
 
-1. Ribbon allows both static & dynamic ips. If u have eureka-client in the classpath, then it fallsback to dynamic list and seemlessly integrates with eureka.
+1. Ribbon client is not specific to eureka at all. It is a generic client side load balancer which allows us to specify static ips and performs intelligent load balancing.  If u have eureka-client in the classpath, then it fallsback to dynamic list and seemlessly integrates with eureka.It allows both static & dynamic ips.
 Ex static config in app.props: clienid.ribbon.listOfServers=s2-1.com,s2-2.com
 
 2. Filtered server List: spring cloud default strategy, is same zone.
