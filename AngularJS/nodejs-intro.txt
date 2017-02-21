@@ -1,0 +1,296 @@
+﻿Node.js
+is single threaded, event driven (non bloking/asynchrouns) js based server-side webapp platform based on fastest google chrome's js engine.
+is open source.
+follows plugin architecture, there are 100's of plugins available.
+developed by Ryan Dahl in 2009.
+is a cross-platform runtime environment for developing server-side and networking applications. 
+
+eventhough Single Threaded it is but it can support concurrency due to its event and callbacks.
+Event mechanism helps the server to respond in a non-blocking way 
+and makes the server highly scalable as opposed to traditional servers liek apache, tomcat which create limited threads to handle requests.
+Every API of Node.js is asynchronous.
+
+No Buffering − Node.js applications never buffer any data. These applications simply output the data in chunks.
+
+Node is only ideal for I/O bound applications (or those that wait on user events), but very bad for CPU-heavy applications. 
+Good examples include data-intensive realtime applications (DIRT), single page applications, JSON APIs, and data-streaming applications.
+
+
+useful nodejs commands:
+npm -version
+npm init : create a nodejs project in any folder. it creates a package.json.
+npm install npm -g : upgrade node to its latest
+npm install nodemon -g : to see changes reflected without restarting server.
+npm install express --save  Use --save at the end of the install command to add dependency entry into package.json of your application.
+npm install <modulename>
+npm install <modulename> -g
+npm uninstall express
+npm update express 
+
+Typical workflow to create a new node project and get up running:
+------------------------------------------------------
+1. go to any folder in ur computer where u want to have ur nodejs workspace. The folder itself will become ur workspace.
+2. npm init
+3. install all the required modules by saying, npm install <module> --save. This updates the dependencies in the package.json.Also creates node-modules directory.
+or if u r importing project from some where just say : npm install which will look into ur package.json and install all the dependencies in ur folder.
+
+
+Global vs Local Installation
+By default, "npm install" installs any dependency in the local mode i.e only in your current nodejs app workspace by creting a folder "node_modules". 
+U can use npm ls command to see all locally installed modules. 
+
+To install modules globally use -g to npm install. Globally installed packages/dependencies are stored in system directory. Such dependencies can be only be used in CLI (Command Line Interface) of any node.js 
+but cannot be imported using require() in Node application directly. 
+
+some imp modules:
+-----------------
+express: Node's http server
+morgan: a nice logger for Express.
+fs: to read/write files
+body-parser:
+cookie-parser:
+events:to work with writing our own app specific events. (like a gwt eventbus.)  
+url: to directly work with request urls.
+
+
+
+package.json (it is like pom.xml)
+package.json is present in the root directory of any Node application/module and is used to define the properties of a package.
+
+name − name of the package
+version − version of the package
+description − description of the package
+homepage − homepage of the package
+dependencies − list of dependencies. NPM automatically installs all the dependencies mentioned here in the node_module folder of the package.
+main − entry point of the package
+
+
+eventbus.js:
+----------
+var events = require('events');
+var eventbus = new events.EventEmitter();
+eventbus.on('connection', function(p1){
+	console.log("p1 " + p1);
+});
+eventbus.emit('connection',"param1","param2");
+
+async-io.js
+------------
+var fs = require("fs");
+fs.readFile('input.txt', function (err, data) {
+   if (err) return console.error(err);
+   console.log(data.toString());
+});
+
+How Node Applications Work?
+In a Node Application, any async function accepts a callback as the last parameter and a callback function accepts an error as the first parameter. 
+
+
+What are Streams?
+Streams are objects that let you read data from a source or write data to a destination in continuous fashion. In Node.js, there are four types of streams −
+
+Readable − Stream which is used for read operation.
+Writable − Stream which is used for write operation.
+Duplex − Stream which can be used for both read and write operation.
+Transform − A type of duplex stream where the output is computed based on input.
+
+Each type of Stream is an EventEmitter instance and throws several events at different instance of times. For example, some of the commonly used events are −
+
+data − This event is fired when there is data is available to read.
+end − This event is fired when there is no more data to read.
+error − This event is fired when there is any error receiving or writing data.
+finish − This event is fired when all the data has been flushed to underlying system.
+
+stream-ex.js
+-----------------------
+var fs = require("fs");
+var data = '';
+
+var readerStream = fs.createReadStream('input.txt');
+readerStream.setEncoding('UTF8');
+
+readerStream.on('data', function(chunk) {
+	console.log("reading...");
+   data += chunk;
+});
+
+readerStream.on('end',function(){
+   console.log(data);
+});
+
+readerStream.on('error', function(err){
+   console.log(err.stack);
+});
+
+var ws = fs.createWriteStream('output.txt');
+ws.write("abcccccccccccccccccccc",'UTF8');
+
+ws.end();
+
+ws.on('finish', function() {
+    console.log("Write completed.");
+});
+
+ws.on('error', function(err){
+   console.log(err.stack);
+});
+
+///rs.pipe(ws);
+
+Implicit objects in Nodejs app:
+console.log(__filename); console.log(__dirname);
+setTimeout(function(){ //some}, 2000);
+
+
+
+A very low level http server:
+-------------------------------------
+var http = require('http');
+var fs = require('fs');
+var url = require('url');
+http.createServer( function (request, response) {  
+   var pathname = url.parse(request.url).pathname;
+   console.log("Request for " + pathname + " received.");
+   
+   // Read the requested file content from file system
+   fs.readFile(pathname.substr(1), function (err, data) {
+      if (err) {
+         console.log(err);
+         response.writeHead(404, {'Content-Type': 'text/html'});
+      }else {	
+         response.writeHead(200, {'Content-Type': 'text/html'});	
+         response.write(data.toString());		
+      }
+      response.end();
+   });   
+}).listen(8080);
+
+
+Express: (Node's Http server)
+-------------
+Nodejs(google v8 engine) = Java runtime/platform.
+package.json is like pom.xml
+What a http server(tomcat/apache server) is to a servlet is what the EXPRESS is to a nodejs app. 
+It fulfills all the regular duties of what a typical http server like apache/tomcat do:
+	It serves all the static content(css/html,images,js..etc) to the browser.
+	It allows our nodejs code to accept requests, parse the req body(bodyparser) and send responses. It can also handle file uploads&file downloads easily.
+	It allows us to define various routes(endpoints) of our app and attach corresponding handlers to those routes.
+	
+Express depends on 3 other modules for parsing http requests, cookies.
+
+body-parser − This is a node.js middleware for handling JSON, Raw, Text and URL encoded form data.
+cookie-parser − Parse Cookie header and populate req.cookies with an object keyed by the cookie names.
+multer − This is a node.js middleware for handling multipart/form-data.
+
+$ npm install body-parser --save
+$ npm install cookie-parser --save
+$ npm install multer --save
+
+express.js
+-----------
+var express = require('express');
+var app = express();
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser')
+var urlencodedParser = bodyParser.urlencoded({ extended: false })//Create application/x-www-form-urlencoded parser
+var logger = require("morgan");
+
+
+app.use(cookieParser());
+app.use(express.static('public')); //tell to express what is the directory where all of ur static content resides.
+app.use(logger());
+app.set("views", __dirname + "/views");
+app.set("view engine", "ejs");
+
+app.get('/index.htm', function (req, res) {
+	console.log("Cookies: ", req.cookies)
+   res.sendFile( __dirname + "/" + "index.htm" );
+})
+
+app.get('/getuser', function (req, res) {
+    response = {
+      first_name:req.query.fname,
+      last_name:req.query.lname
+   };
+   res.end(JSON.stringify(response));
+})
+
+app.post('/saveuser', function (req, res) {
+    response = {
+      first_name:req.body.first_name,
+      last_name:req.body.last_name
+   };
+   console.log(response);
+   res.end(JSON.stringify(response));
+})
+
+app.delete('/del_user', function (req, res) {
+   res.send('Hello DELETE');
+})
+
+app.get('/list_user', function (req, res) {
+   console.log("Got a GET request for /list_user");
+   res.send('Page Listing');
+})
+
+
+app.get('/ab*cd', function(req, res) {   
+   console.log("This responds a GET request for abcd, abxcd, ab123cd, and so on");
+   res.send('Page Pattern Match');
+})
+
+app.get("/hello/:who", function(req, res) {
+  res.end("Hello, " + req.params.who + ".");
+});
+
+app.get("/redirectMe", function(req, res) {
+  response.redirect("/hello/anime");
+});
+app.get("/sendfile", function(req, res) {
+  response.sendFile("/path/to/anime.mp4"); //wow suoper easy!
+});
+
+app.get("/ejstest", function(request, response) {
+  response.render("index", { message: "I love anime" });
+});
+
+<form action = "http://127.0.0.1:8081/file_upload" method = "POST" 
+         enctype = "multipart/form-data">
+         <input type="file" name="file" size="50" />
+         <br />
+         <input type = "submit" value = "Upload File" />
+      </form>
+	  
+app.post('/file_upload', function (req, res) {
+   console.log(req.files.file.name + req.files.file.path + req.files.file.type);
+   var file = __dirname + "/" + req.files.file.name;
+      fs.readFile( req.files.file.path, function (err, data) {
+      fs.writeFile(file, data, function (err) {
+         if( err ){
+            console.log( err );
+            }else{
+               response = {
+                  message:'File uploaded successfully',
+                  filename:req.files.file.name
+               };
+            }
+         res.end( JSON.stringify( response ) );
+      });
+   });
+})
+
+var server = app.listen(8081, function () {
+   var host = server.address().address
+   var port = server.address().port
+   console.log("Example app listening at http://%s:%s", host, port)
+})
+https://blog.udemy.com/node-js-tutorial/#7_1
+http://www.tutorialsteacher.com/nodejs/nodejs-tutorials
+https://devcenter.heroku.com/articles/mean-apps-restful-api
+https://www.ibm.com/developerworks/library/wa-nodejs-polling-app/
+https://expressjs.com/en/guide/routing.html	
+https://www.airpair.com/node.js/posts/top-10-mistakes-node-developers-make
+https://codeforgeek.com/2014/09/update-code-without-restarting-node-server/
+
+
+

@@ -1,0 +1,97 @@
+What is a module in NodeJS:
+A module encapsulates related code into a single unit of code. When creating a module, this can be interpreted as moving all related functions into a file.
+
+exports & module.exports
+------------------------
+is a way to allow importing other files in ur node program. In browsers, we simply refer the dependencies before referring the actual program. So the functions,variables,classes defined in the
+library are automatically visible&accessible in you file. But Nodejs defines a clean approch for this, in order to structure your program into different files.
+node.js provides you with a simple module system.
+
+You can refer a particualr js using: requires("./utils.js") and the utils.js must expose the what all it wants to expose using a exports or module.exports.
+The exported unit can be a variable, function, class..etc.
+
+Ex: 
+utils.js:
+------
+module.exports = ['Lemmy Kilmister', 'Ozzy Osbourne', 'Ronnie James Dio', 'Steven Tyler', 'Mick Jagger'];
+exports.name = function() {
+    console.log('hello...');
+};
+in ur app:
+------------
+var rocker = require('./utils.js');
+console.log('Rockin in heaven: ' + rocker[2]);
+rocker.name();
+
+rocker.js
+-----------
+module.exports = function(name, age) {
+    this.name = name;
+    this.age = age;
+    this.about = function() {
+        console.log(this.name +' is '+ this.age +' years old');
+    };
+};
+in ur app:
+----------------
+var Rocker = require('./rocker.js');
+var r = new Rocker('Ozzy', 62);
+r.about();
+
+
+Difference between exports & module.exports:
+------------------------------------
+With module.exports u can assign only 1 value to it.It is used when you want to expose one variable. It could be a function, string, or any valid variable.
+
+module.exports = function() {
+  return 'bread: 2';
+};
+module.exports.age = "2 days";
+
+var bread = require ('./bread.js');
+console.log(bread());
+console.log(bread.age); //will not work
+
+In a nutshell:
+--------------------------
+You can do something like:
+
+module.exports = {
+    method: function() {},
+    otherMethod: function() {}
+}
+Or even just:
+
+exports.method = function() {};
+exports.otherMethod = function() {};
+
+app.use(app.router);
+------------------------------------------
+
+router is code that runs your routes. When you do app.get('/user', function(req, res) { ... });, it is the router that actually invokes the callback function 
+to process the request.
+
+The order that you pass things to app.use determines the order in which each middleware is given the opportunity to process a request. 
+For example, if you have a file called test.html in your static folder and a route:
+
+app.get('/test.html', function(req, res) {
+    res.send('Hello from route handler');
+});
+Which one gets sent to a client requesting http://server/test.html? Whichever middleware is given to use first.
+
+If you do this:
+
+app.use(express.static(__dirname + '/public'));
+app.use(app.router);
+Then the file on disk is served.
+
+If you do it the other way,
+
+app.use(app.router);
+app.use(express.static(__dirname + '/public'));
+Then the route handler gets the request, and "Hello from route handler" gets sent to the browser.
+
+Usually, you want to put the router above the static middleware so that a accidentally-named file can't override one of your routes.
+
+Note that if you don't explicitly use the router, it is implicitly added by Express at the point you define a route (which is why your routes still worked even though you commented out app.use(app.router)).
+
