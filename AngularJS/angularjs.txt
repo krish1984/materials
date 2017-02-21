@@ -1,0 +1,119 @@
+AngularJS extends HTML(only view) by providing directives that add functionality to your markup.
+You can also create your own directives, crafting reusable components that fill your needs and abstracting away all the DOM manipulation logic.
+
+It also implements two-way data binding btwn your HTML (views) and JavaScript objects (models). 
+$.post('server.php', $('#theForm').serialize()) //http://stackoverflow.com/questions/1960240/jquery-ajax-submit-form
+What this means is that any update on your model will be immediately reflected in your view without the need for any DOM manipulation or 
+event handling (e.g., with jQuery).
+
+Features:
+2 way data binding. (No need of accessing each html elements manually ).
+Dirty checking.
+dependency injection allows unit testing easy.
+Adds behavor to html with the concept of directives.
+A client side MVC JS framework.
+
+Best practices:
+Never manipulate the DOM with in the controllers. It is an anti pattern to the rule that there shud be a sepearation of concerns.
+
+ 
+
+
+AngularJS directives:
+=============================
+Directives extend html to to provide behavior to the static nature of html. 
+Ex: ng-app, ng-init, ng-controller, ng-model(to bind value fields of html input controls), ng-bind(to bind innerHTML of div,span,p elements),
+ng-click.
+some Directives allow model & view work together with out requiring direct interaction with each other.
+
+ng-app:
+-------
+is used to mark the part of the html doc as angular js app. ex: <div ng-app="myApp">...</div>. It can also have an empty name.
+i.e its a kindof marker to mark that it is an angjs application so that angjs can look for any expressions, ng attributes defined with in that tag.
+Only those ng expressions,  ng attributes defined with in this div are processed by angjs.
+
+The ng-app directive defines the root element of an AngularJS application. It will auto-bootstrap (automatically initialize) 
+the application when a web page is loaded. It tells angular to look for any ng directives, ng expressions and process them.
+
+Services:
+services typially contain BL or any reusable logic that abstracts many intricate detail.
+ Once defined, we can inject and use that particular service in other components, like controllers, directives and filters.
+ In a service u can cache server results. It may call multiple rest calls(FRP) and once all end then return the result.
+ 
+ng-controller: 
+---------------
+A controller is a js function that will be executed if you use ng-controller='MyController' in the html.
+is used to retriev/post the model values from server ..etc and intialize the model values. 
+Note that ctrl never directly manipulates the html(view), it just gets the data(model) and makes it available to view by attaching the model to scope. 
+Also, contoller does nt directly access the html/view to hookup events and handle events unlike in jquery,js where they ditecly access html elements to 
+hookup events. With angjs, there is a clear seperation of concerns. The controller is responsible to coordinate data to/from view and register/handle any events
+on the view elements. controllers just drive/control/coordinate bw view and model.
+
+Note:
+A single pg angapp has 1 app tag under which there are multiple views each view is associated with one controller.
+In other words, One html page can have only 1 app. An app can have dozens of controllers defined,
+each controller is the incharge of a specific section of the html page. Note that nesting of a controller in another controller is also possible.
+Each controller can use one or more services. UserController may use userService, which has createUser, deleteUser, updateUser, getUsersByName..etc. and 
+it may also use some other service to fulfill its tasks. 
+
+
+
+ 
+ex: ng-controller="myCtrl1".
+<div ng-app="myApp" ng-controller="myCtrl">
+
+First Name: <input type="text" ng-model="firstName"><br>
+Last Name: <input type="text" ng-model="lastName"><br>
+<br>
+Full Name: {{firstName + " " + lastName}}
+
+</div>
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+    $scope.firstName= "John";
+    $scope.lastName= "Doe";
+});
+</script>
+In order to  use controllers, you must define the ang app using angular.module("appName") which can be used to define controller.
+
+ng-init: is used initialize an app variable.
+ex: ng-init="lastName1='John';myCol='lightblue';quantity=1;cost=5"
+You can even initialize objects as follows:
+
+ <div ng-app="" ng-init="person={firstName:'John',lastName:'Doe'}">
+
+<p>The name is {{ person.lastName }}</p>
+
+</div> 
+
+Even arrays..
+ <div ng-app="" ng-init="points=[1,15,19,2,40]">
+
+<p>The third result is {{ points[2] }}</p>
+
+</div> 
+
+ng-model: is used to create an application scoped variable if not already by the init. If one is there, uses it to render the value of the tag using it.
+ng-bind: is used to retrieve the value application scoped variable already defined. 
+
+
+
+
+---------
+why shud i use ng-click instead of onclick?
+If u want to pass ng expressions or scope variables as parameters inside function call, or use scope's model values in the called function body u should use ng-click.
+same like <span jwcid="@Any" value="ognl:user.name" class="expr"/>
+Note that u can use the ng expressions where ever u want. Inside, any existing attributes(src,class,href,value), like simple text inside div, mixed with html.
+
+Ex: 
+<a onclick="var $scope = angular.element(event.target).scope(); $scope.yourVar = 42; $scope.$apply()">Go</a>
+and with ng-click and an Angular expression for the assignment, almost all of that is implicit:
+
+ng-click,ng-model,ng-class,ng-show,ng-hide ..allow u to refer the scope variables defined directly in their body.
+<a ng-click="yourVar = 42">Go</a>
+
+same for ng-class, it allows u write ng expressions inside it.  
+
+why shud i use $location, $timeout instead of native js like window.location?
+
