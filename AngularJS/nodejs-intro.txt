@@ -178,7 +178,8 @@ It fulfills all the regular duties of what a typical http server like apache/tom
 	
 Express depends on 3 other modules for parsing http requests, cookies.
 
-body-parser − This is a node.js middleware for handling JSON, Raw, Text and URL encoded form data.
+body-parser − This is a node.js middleware for handling JSON, Raw, Text and URL encoded form data. it extracts the entire body portion of an incoming request stream and exposes it on req.body as something easier to interface with. Note that clients must send correct content-type header for it handle properly. Ex: application/json,application/url-encoded-form-data
+
 cookie-parser − Parse Cookie header and populate req.cookies with an object keyed by the cookie names.
 multer − This is a node.js middleware for handling multipart/form-data.
 
