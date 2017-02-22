@@ -178,7 +178,15 @@ It fulfills all the regular duties of what a typical http server like apache/tom
 	
 Express depends on 3 other modules for parsing http requests, cookies.
 
-body-parser − This is a node.js middleware for handling JSON, Raw, Text and URL encoded form data. it extracts the entire body portion of an incoming request stream and exposes it on req.body as something easier to interface with. Note that clients must send correct content-type header for it handle properly. Ex: application/json,application/url-encoded-form-data
+body-parser − This is a node.js middleware for handling JSON, Raw, Text and URL encoded form data. it extracts the entire body portion of an incoming request stream and exposes it on req.body as something easier to interface with. Note that clients must send correct content-type header for it handle properly. Ex: application/json,application/url-encoded-form-data.
+ Some times,:
+ //support parsing of application/json type post data
+app.use(bodyParser.json());
+
+//support parsing of application/x-www-form-urlencoded post data
+app.use(bodyParser.urlencoded({ extended: true }));
+
+But saying it explicitly is not needed.
 
 cookie-parser − Parse Cookie header and populate req.cookies with an object keyed by the cookie names.
 multer − This is a node.js middleware for handling multipart/form-data.
@@ -192,15 +200,11 @@ express.js
 var express = require('express');
 var app = express();
 var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser')
-var urlencodedParser = bodyParser.urlencoded({ extended: false })//Create application/x-www-form-urlencoded parser
-var logger = require("morgan");
-
-
+var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 app.use(express.static('public')); //tell to express what is the directory where all of ur static content resides.
 app.use(logger());
-app.set("views", __dirname + "/views");
+app.set("views", __dirname + "/views"); //all templates are here.
 app.set("view engine", "ejs");
 
 app.get('/index.htm', function (req, res) {
