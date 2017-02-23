@@ -1,3 +1,13 @@
+
+Session Store-based Session
+
+app.use(express.session({
+  key: 'app.sess',
+  store: new RedisStore,
+  secret: 'SEKR37'
+}));
+
+
 Need of storing sessions in a DB rather than in memory:
 --------------------------------------------------------
 
@@ -8,3 +18,51 @@ It’s a best practice to avoid storing sessions in local memory even for applic
 Such apps will be unable to scale, and just restarting the app will log out every user.
 
 2. Also, unncessarily u r increasing the memory requirements of ur app.
+
+
+Using mongo store:
+-----------------
+var esession = require('express-session');
+var MongoStore = require('connect-mongo')(esession);
+app.use(esession({
+    cookie: { maxAge: 1000*60*2 } ,
+    secret: "session secret" ,
+    store:new MongoStore({
+            db: 'express',
+            host: 'oceanic.mongohq.com',
+            port: 10065,  
+            username: 'cm',
+            password: 'cm', 
+            collection: 'session', 
+            auto_reconnect:true
+    })
+}));
+
+or use this:
+var sessionOptions = {
+  secret: "secret",
+  resave : true,
+  saveUninitialized : false,
+  store: new MongoStore({
+    url:"mongodb://localhost/test",
+    //other advanced options
+  })
+};
+
+or more easily:
+app.use(session({
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
+}));
+
+The secret is a random, high-entropy string you create to encrypt the cookie. We need to take this step because the browser is an inherently untrusted environment; anyone with access can open it up and see what’s stored in there. Client-sessions will encrypt and decrypt all the cookie values, so you don’t have to worry about prying eyes.
+This is a big part of why we recommend using a library to manage sessions. It’s never a good idea to roll your own crypto, and unencrypted cookies are a non-starter.
+
+The duration defines how long the session will live in milliseconds. After that, the cookie is invalidated and will need to be set again. You probably experience this behavior daily on sites that deal with secure data. Your banking portal, for instance (hopefully).
+
+activeDuration allows users to lengthen their session by interacting with the site. If the session is 28 minutes old and the user sends another request, activeDuration will extend the session’s life for however long you define. In this case, 5 minutes.
+In short, activeDuration prevents the app from logging a user out while they’re still using the site.
+
+
+https://github.com/jdesboeufs/connect-mongo
+
+http://expressjs-book.com/index.html%3Fp=128.html
