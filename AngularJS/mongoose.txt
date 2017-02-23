@@ -23,3 +23,34 @@ var Schema = new Schema({ __v: { type: Number, select: false}})
 
 or  you can call user.toObject({ versionKey: false }), which will hide __v version property or when you query, like model.findById(id).select('-__v')
 '-' means exclude the field.
+
+Query examples:
+------------------------------
+// find all athletes person that play tennis
+var query = Athlete.find({ 'sport': 'Tennis' });
+
+// selecting the 'name' and 'age' fields
+query.select('name age');
+
+// limit our results to 5 items
+query.limit(5);
+
+// sort by age
+query.sort({ age: -1 });
+
+// execute the query at a later time
+query.exec(function (err, athletes) {
+  if (err) return handleError(err);
+  // athletes contains an ordered list of 5 athletes who play Tennis
+})
+
+https://developer.mozilla.org/en-US/docs/Learn/Server-side/Express_Nodejs/mongoose
+
+Athlete.
+  find().
+  where('sport').equals('Tennis').
+  where('age').gt(17).lt(50).  //Additional where query
+  limit(5).
+  sort({ age: -1 }).
+  select('name age').
+  exec(callback); // where callback is the name of our callback function.
