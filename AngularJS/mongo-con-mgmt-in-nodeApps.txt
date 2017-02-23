@@ -1,0 +1,13 @@
+Session Mgmt:
+---------------------
+
+https://stormpath.com/blog/everything-you-ever-wanted-to-know-about-node-dot-js-sessions
+https://codeforgeek.com/2014/09/manage-session-using-node-js-express-4/
+https://devcenter.heroku.com/articles/node-sessions
+
+
+Connection Mgmt:
+-------------------------
+https://productbuilder.wordpress.com/2013/09/06/using-a-single-global-db-connection-in-node-js/
+http://theholmesoffice.com/mongoose-connection-best-practice/
+http://stackoverflow.com/questions/10656574/how-do-i-manage-mongodb-connections-in-a-node-js-web-application
