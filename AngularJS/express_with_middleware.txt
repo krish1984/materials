@@ -112,3 +112,30 @@ var app = express()
 var cookieParser = require('cookie-parser')
 // load the cookie-parsing middleware
 app.use(cookieParser())
+
+
+Default Express 4.0 middlewares
+-------------------------------------------
+morgan: logger
+body-parser: parse the body so you can access parameters in requests in req.body. e.g. req.body.name.
+cookie-parser: parse the cookies so you can access parameters in cookies req.cookies. e.g. req.cookies.name.
+serve-favicon: exactly that, serve favicon from route /favicon.ico. Should be call on the top before any other routing/middleware takes place to avoids unnecessary parsing.
+
+Other ExpressJS Middlewares
+----------------------------------------
+The following middlewares are not added by default, but it’s nice to know they exist at least:
+
+compression: compress all request. e.g. app.use(compression())
+
+session: create sessions. e.g. app.use(session({secret: 'Secr3t'}))
+
+method-override: app.use(methodOverride('_method')) Override methods to the one specified on the _method param. e.g. GET /resource/1?_method=DELETE will become DELETE /resource/1.
+
+response-time: app.use(responseTime()) adds X-Response-Time header to responses.
+
+errorhandler: Aid development, by sending full error stack traces to the client when an error occurs. app.use(errorhandler()). It is good practice to surround it with an if statement to check process.env.NODE_ENV === 'development'.
+
+vhost: Allows you to use different stack of middlewares depending on the request hostname. e.g. app.use(vhost('*.user.local', userapp)) and app.use(vhost('assets-*.example.com', staticapp)) where userapp and staticapp are different express instances with different middlewares.
+
+csurf: Adds a Cross-site request forgery (CSRF) protection by adding a token to responds either via session or cookie-parser middleware. app.use(csrf());
+
