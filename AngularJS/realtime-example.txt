@@ -1,0 +1,59 @@
+Create a file called server.js This will obviously be our server run by node. Place the following code into it:
+
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+
+app.get('/', function(req, res){
+
+  //send the index.html file for all requests
+  res.sendFile(__dirname + '/index.html');
+
+});
+
+http.listen(3001, function(){
+
+  console.log('listening on *:3001');
+
+});
+
+//for testing, we're just going to send data to the client every second
+setInterval( function() {
+
+  /*
+    our message we want to send to the client: in this case it's just a random
+    number that we generate on the server
+  */
+  var msg = Math.random();
+  io.emit('message', msg);
+  console.log (msg);
+
+}, 1000);
+Create the last file called index.html and place the following code into it.
+
+<html>
+<head></head>
+
+<body>
+  <div id="message"></div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+
+    socket.on('message', function(msg){
+      console.log(msg);
+      document.getElementById("message").innerHTML = msg;
+    });
+  </script>
+</body>
+</html>
+You can now test this very simple example and see some output similar to the following:
+
+$ node server.js
+listening on *:3001
+0.9575486415997148
+0.7801907607354224
+0.665313188219443
+0.8101786421611905
+0.890920243691653
