@@ -1,0 +1,2 @@
+http://www.signal.co/dev-log/exception-handling-node-js/
+http://www.machadogj.com/2013/4/error-handling-in-nodejs.html
