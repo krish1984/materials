@@ -1,0 +1,25 @@
+What is _version field in mongo created by mongoose?
+------------------------------------------------------
+The versionKey is a property set on each document when first created by Mongoose by default. 
+http://gitmeet.com/post/mongoose-document-versioning-a-simple-fail-safe-way-to-update-nested-documents
+
+The version key is also retrived for each record when queried, which is ugly. 
+This keys value contains the internal revision of the document. The name of this document property is configurable. The default is __v.
+
+If this conflicts with your application you can configure as such: new Schema({..}, { versionKey: '_somethingElse' })
+
+If you don't need version_key, you can just:
+
+var UserSchema = mongoose.Schema({
+    nickname: String,
+    reg_time: {type: Date, default: Date.now}
+}, {
+    versionKey: false // You should be aware of the outcome after set to false
+});
+
+To hide it from all queries, which sometimes can be not what you want too, use the select schema type option:
+var Schema = new Schema({ __v: { type: Number, select: false}}) 
+});
+
+or  you can call user.toObject({ versionKey: false }), which will hide __v version property or when you query, like model.findById(id).select('-__v')
+'-' means exclude the field.
