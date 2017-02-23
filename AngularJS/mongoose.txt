@@ -1,3 +1,10 @@
+http://mongoosejs.com/docs/connections.html
+https://blog.jayway.com/2015/04/13/600k-concurrent-websocket-connections-on-aws-using-node-js/
+
+Can node.js handle thousands of concurrent requests per second, when writing them to Mongo?
+A: As long you follow node.js' async model and do some optimizations, you can handle a lot of concurrent requests. The database usually is the bottleneck of your app, but since MongoDB does not use heavy transactions as RDBMSs do, it is able to sustain a lot of throughput. Generally the web server and the database server are 2 different machines, because of Async nature, the event loop gets free after forwarding the read/write request to database server. That is why, a Node JS HTTP server can handle a large number of requests while the process of complex read/write operations could be inprocess on database server(s).
+
+
 What is _version field in mongo created by mongoose?
 ------------------------------------------------------
 The versionKey is a property set on each document when first created by Mongoose by default. 
