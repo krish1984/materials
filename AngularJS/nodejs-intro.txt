@@ -46,6 +46,7 @@ some imp modules:
 -----------------
 express: Node's http server
 morgan: a nice logger for Express.
+log4js,mongoose,express-session, connect-mongo, cluster.
 fs: to read/write files
 body-parser:
 cookie-parser:
