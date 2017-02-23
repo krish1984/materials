@@ -8,6 +8,16 @@ https://devcenter.heroku.com/articles/node-sessions
 
 Connection Mgmt:
 -------------------------
+What is the right way to deal with Mongodb connections?
+A: Since Node.js is single threaded you shouldn't be opening and closing the connection on each request (like you would do in other multi-threaded environments.)
+
+This is a quote from the person that wrote the MongoDB node.js client module:
+“You open do MongoClient.connect once when your app boots up and reuse the db object. It's not a singleton connection pool each .connect creates a new connection pool. So open it once an[d] reuse across all requests.” - christkv 
+
+https://blog.mlab.com/2013/11/deep-dive-into-connection-pooling/
+https://mongodb.github.io/node-mongodb-native/driver-articles/mongoclient.html
+http://technosophos.com/2011/10/26/nodejs-connection-pools-and-mongodb.html
+http://www.fizerkhan.com/blog/posts/Things-you-should-consider-for-MongoDB-in-production.html
 https://productbuilder.wordpress.com/2013/09/06/using-a-single-global-db-connection-in-node-js/
 http://theholmesoffice.com/mongoose-connection-best-practice/
 http://stackoverflow.com/questions/10656574/how-do-i-manage-mongodb-connections-in-a-node-js-web-application
