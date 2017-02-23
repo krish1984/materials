@@ -1,11 +1,14 @@
-http://cjihrig.com/blog/scaling-node-js-applications/
+https://scotch.io/tutorials/a-simple-guide-to-getting-started-with-grunt
 http://cjihrig.com/blog/scaling-node-js-applications/
 https://strongloop.com/strongblog/node-js-performance-scaling-proxies-clusters/
 http://www.somenathghosh.space/2016/04/10/node-js-definitive-design-definition-tutorial-series-1/
+https://strongloop.com/strongblog/node-js-deploy-production-best-practice/
+http://www.mbejda.com/deploying-node-applications-with-ansible/
+https://www.codementor.io/mattgoldspink/nodejs-best-practices-du1086jja
 
 
-
-
+Not so imp for now:
 https://www.nginx.com/blog/5-performance-tips-for-node-js-applications/
 http://adrianmejia.com/blog/2016/03/23/how-to-scale-a-nodejs-app-based-on-number-of-users/#Microservices-100-000-concurrent-users
 https://www.linkedin.com/pulse/nodejs-enterprise-applications-you-kidding-mihir-shelat
+https://www.nginx.com/blog/deploying-microservices/
