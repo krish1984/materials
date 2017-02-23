@@ -1,0 +1,10 @@
+Need of storing sessions in a DB rather than in memory:
+--------------------------------------------------------
+
+1. If server-side sessions are stored locally, a user who starts a session on one dyno can end up making requests against a different 
+dyno where that local session doesn’t exist. Thus, whenever an application runs on multiple processes 
+(dynos, servers, virtual machines, or Cluster workers), session state must be stored externally in a backing service (like redis). 
+It’s a best practice to avoid storing sessions in local memory even for applications that are currently running in just a single process. 
+Such apps will be unable to scale, and just restarting the app will log out every user.
+
+2. Also, unncessarily u r increasing the memory requirements of ur app.
