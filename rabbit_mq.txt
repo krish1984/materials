@@ -17,12 +17,13 @@ EXCHANGE
 Messages are not published directly to a queue, instead, the producer sends messages to an exchange. An exchange is responsible for the routing of the messages to the different queues based on the bindings configured for the queues. A binding is the link between a queue and an exchange.
 There are basically 4 types of exchanges in RabbitMQ:
 
-Direct: A direct exchange delivers messages to queues based on the message's routing key. In a direct exchange, the message are routed to the queues whose binding key exactly matches the routing key of the message. If the queue is bound to the exchange with the binding key pdfprocess, a message published to the exchange with a routing key pdfprocess will be routed to that queue.
+Direct: A direct exchange delivers messages to those queues whose routing key (some people call it binding key) exactly matches the routing key of the message. If the queue is bound to the exchange with the routing key pdfprocess, a message published to the exchange with a routing key pdfprocess will be routed to that queue. Multiple queues can be bound to the same exchange with the same routing key.
+
+Topic: The topic exchange is same as direct exchange, but in this case the routing key with which queues are bound to the exchange is a wildcard/pattern instead of string and the exchange matches the message's routing key against this wildcard/pattern to identify what are the queues it should send the messages to.
+
+Headers: Header exchanges use the message header attributes for routing.
 
 Fanout: A fanout exchange routes messages to all of the queues that are bound to it.
-
-Topic: The topic exchange does a wildcard match between the routing key and the routing pattern specified in the binding.
-Headers: Header exchanges use the message header attributes for routing.
 
 QUEUE
 Buffer that stores messages. Once the exchange sends the msg to a QUEUE, it is stored in the queue until some client connects to it and consumes it.One consumed, it will removed from teh Queue automatically.
