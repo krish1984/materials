@@ -1,3 +1,40 @@
+RabbitMQ is a message-queueing software called a message broker or queue manager. Simply said; It is a software where queues can be defined, applications may connect to the queue and transfer a message onto it. It is typically used for asynchronous processing of requests.
+Ex: u accept forgot password request and send a SMS asycnchronlously, u accept a word-pdf convert request and process it asyn and send email asycnchronlously. Like this ur webapp can accept any no requests but they will be processed async. The benefit: Unlike traditional apps, no user is denied the server becoz threads are runningout, You keep on accepting user requests and process them async. This way u r increasing the scalability of ur app.
+
+The message can include any kind of information. It can be a binary file(audio,video,pdf,..etc), or a java object(s) or it could be just a simple text message. The queue-manager software stores the messages until a receiving application connects and takes a message off the queue. The receiving application then processes the message in an appropriate manner.
+
+RabbitMQ Terminology:
+-------------------------
+AMQP: AMQP (Advanced Message Queuing Protocol) is the protocol used by RabbitMQ for messaging.It is an open standard application layer protocol for message-oriented middleware. The defining features of AMQP are message orientation, queuing, routing (including point-to-point and publish-and-subscribe), reliability and security. AMQP mandates the behavior of the messaging provider and client to the extent that implementations from different vendors are interoperable, in the same way as SMTP, HTTP, FTP, etc. have created interoperable systems.
+
+PRODUCER: Application that sends the messages.
+CONSUMER: Application that receives the messages.
+Message: Information that is sent from the producer to a consumer through RabbitMQ.
+Connection: A connection is a TCP connection between your application and the RabbitMQ broker.
+Channel: A channel is a virtual connection built on top of a connection. When you are publishing or consuming messages from a queue - it's all done over a channel.
+
+EXCHANGE
+Messages are not published directly to a queue, instead, the producer sends messages to an exchange. An exchange is responsible for the routing of the messages to the different queues based on the bindings configured for the queues. A binding is the link between a queue and an exchange.
+There are basically 4 types of exchanges in RabbitMQ:
+
+Direct: A direct exchange delivers messages to queues based on the message's routing key. In a direct exchange, the message are routed to the queues whose binding key exactly matches the routing key of the message. If the queue is bound to the exchange with the binding key pdfprocess, a message published to the exchange with a routing key pdfprocess will be routed to that queue.
+
+Fanout: A fanout exchange routes messages to all of the queues that are bound to it.
+
+Topic: The topic exchange does a wildcard match between the routing key and the routing pattern specified in the binding.
+Headers: Header exchanges use the message header attributes for routing.
+
+QUEUE
+Buffer that stores messages. Once the exchange sends the msg to a QUEUE, it is stored in the queue until some client connects to it and consumes it.One consumed, it will removed from teh Queue automatically.
+
+Binding: A binding is a link between a queue and an exchange. The binding(link) is typically achived by defining the bindingkey (For ex: a string "pdfprocessing" or "forgotpwd_smsprocess") for the Queue or by defining a routing pattern on the exchange.
+
+Routing key: The routing key is a key that the exchange looks at to decide how to route the message to queues. The routing key is like an address for the message.
+
+
+How RabbitMQ message processing works:
+--------------------------------------
+
 https://www.cloudamqp.com/blog/2015-05-18-part1-rabbitmq-for-beginners-what-is-rabbitmq.html
 https://www.cloudamqp.com/blog/part2-rabbitmq-for-beginners_example-and-sample-code.html
 https://www.cloudamqp.com/blog/2015-05-27-part3-rabbitmq-for-beginners_the-management-interface.html
