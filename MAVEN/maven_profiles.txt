@@ -1,0 +1,156 @@
+A Build profile is a set of configuration values which can be used to set or override default values of Maven build. Using a build profile, 
+you can customize build for different environments such as Production v/s Development environments.
+Profiles are specified in pom.xml file using its activeProfiles / profiles elements.
+
+Build profiles are majorly of three types:
+Type	          Where it is defined
+Per Project	      Defined in the project POM file, pom.xml
+Per User          Defined in Maven settings xml file (%USER_HOME%/.m2/settings.xml)
+Global	          Defined in Maven global settings xml file (%M2_HOME%/conf/settings.xml)
+
+Profile Activation
+A Maven Build Profile can be activated in various ways.
+
+Explicitly using command console input. (Ex: mvn install -Pdev, 
+              Note that we can pass multiple profiles: mvn groupId:artifactId:goal -P profile-1,profile-2 )
+Through maven settings. (using activeProfiles tag)
+Based on environment variables (User/System variables).
+OS Settings (for example, Windows family).
+Present/missing files.
+
+Ex:
+<project>
+   <groupId>com.companyname.projectgroup</groupId>
+   <artifactId>project</artifactId>
+   <profiles>
+      <profile>
+      <id>test</id>
+      <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+               <execution>
+                  <phase>test</phase>
+                  <goals>
+                     <goal>run</goal>
+                  </goals>
+                  <configuration>
+                  <tasks>
+                     <echo>Using env.test.properties</echo>
+					 <copy file="src/main/resources/env.test.properties" tofile ="${project.build.outputDirectory}/env.properties"/>
+                  </tasks>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+      </build>
+      </profile>
+   </profiles>
+     .....
+</project>
+
+Explicit Profile Activation
+Use mvn install -Pdev.
+
+Profile Activation via Maven Settings
+The above profile can be reused for all projects if we set the activeProfile in the settings.xml as follows:
+<settings>
+   <mirrors>
+      <mirror>
+         <id>maven.dev.snaponglobal.com</id>
+         <name>Internal Artifactory Maven repository</name>
+         <url>http://repo1.maven.org/maven2/</url>
+         <mirrorOf>*</mirrorOf>
+      </mirror>
+   </mirrors>
+   <activeProfiles>
+      <activeProfile>test</activeProfile>
+   </activeProfiles>
+</settings>
+
+Profile Activation via Environment Variables
+Now remove active profile from maven settings.xml and update the test profile mentioned in pom.xml. Add activation 
+element to profile element as shown below.The test profile will trigger when the system property "env" is specified with the value "test". 
+Create a environment variable "env" and set its value as "test".
+<profile>
+   <id>test</id>
+   <activation>
+      <property>
+         <name>env</name>
+         <value>test</value>
+      </property>
+   </activation>
+</profile>
+Profile Activation via Operating System
+This test profile will trigger when the system is windows XP.
+<profile>
+   <id>test</id>
+   <activation>
+      <os>
+         <name>Windows XP</name>
+         <family>Windows</family>
+         <arch>x86</arch>
+         <version>5.1.2600</version>
+      </os>
+   </activation>
+</profile>
+
+Profile Activation via Present/Missing File
+The test profile will trigger when target/generated-sources/axistools/wsdl2java/com/companyname/group is missing.
+
+<profile>
+   <id>test</id>
+   <activation>
+      <file>
+         <missing>target/generated-sources/axistools/wsdl2java/com/companyname/group</missing>
+      </file>
+   </activation>
+</profile>
+
+
+Vitech Profiles example (core project):
+----------------------------
+<profiles>
+		<profile>
+			<id>weblogic</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+			  ....properties available only for this profile.
+			</properties>
+			<build>
+				<modules>
+					...child modules that need to be included in this profile.
+				</modules>
+				<plugins>
+					...plugins&their config required specific to this profile. (ex: hibernate-gatherer..etc)
+				</plugins>
+			</build>
+			<dependencies>
+				...dependencies required specific to this profile.
+			</dependencies>
+		</profile>
+		<profile>
+			<id>websphere</id>
+			<build>
+				<plugins>
+					...plugins&their config required specific to this profile.
+				</plugins>
+			</build>
+			<dependencies>
+				...dependencies required specific to this profile.
+			</dependencies>
+		</profile>
+		<profile>
+			<id>dev</id>
+			....mini pom......
+		</profile>
+		<profile>
+			<id>devSS</id>
+			....mini pom......
+		</profile>
+	</profiles>

@@ -1,0 +1,222 @@
+Maven Plugins
+--------------
+
+Difference between plugins tag & pluginManagement tag:
+--------------------------------------------------------------
+The diff is anologous to the diff between dependencies and dependencyManagement tags. The plugins defined in plugins tag will effect the build, i.e it kick starts the plugins goal.
+where as the plugins defined in pluginManagement tag are just declare the version numbers of plugins to be used across all your project modules.
+Project modules inheriting this will just need to define the plugins excluding the version numbers.
+
+Note that pluginManagement can be declared in the same POM that uses it.
+
+Ex:
+<pluginManagement>
+			<plugins>
+				<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>1.5.4.RELEASE</version>
+			</plugin>
+			</plugins>
+		</pluginManagement>
+		
+<pluginManagement>
+			<plugins>
+				<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<version>1.5.4.RELEASE</version>
+			</plugin>
+			</plugins>
+		</pluginManagement>
+
+
+Writing custom maven plugins:
+-------------------------------
+
+Customizing maven plugins:
+---------------------------
+Run mvn help:effective-pom, to see what plugins & what configurations were used at each phase of the build. You can also, do this in eclipse.
+You can copy paste the plugin tag you want to customize and put it in your pom with customizations. 
+Examples:
+1.  <plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<executions>
+					<execution>
+                    <id>default-compile</id>
+                    <phase>none</phase>
+                </execution>
+				</executions>
+			</plugin>
+As <phase> is set to NONE, maven will skip compiling your classes. The resultant jar contains no compiled classes. only META-INF is present.
+
+Note that the same may not work for skipping other plugins. It all depends on how that plugin is written!
+For ex to skip deploy plugin u need the following:
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-deploy-plugin</artifactId>
+  <version>X.Y</version>
+  <configuration>
+    <skip>true</skip>
+  </configuration>
+</plugin>
+
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-release-plugin</artifactId>
+	<version>2.0-beta-9</version>
+	<executions>
+		<execution>
+			<id>default-deploy</id>
+			<phase>deploy</phase>
+			<goals>
+				<goal>prepare</goal>
+				<goal>perform</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+Adding the main class in the jar file:
+<plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-jar-plugin</artifactId>
+	    <configuration>
+	      <archive>
+	        <manifest>
+	          <addClasspath>true</addClasspath>
+	          <mainClass>com.vitechinc.v3.pdfconverter.PDFConverter</mainClass>
+	        </manifest>
+	      </archive>
+	    </configuration>
+	  </plugin>
+	  <plugin>
+	  
+2. When you have multiple jdks installed, which java do u expect maven to pick while comiling your classes?
+of course, based on the JAVA_HOME set. But, What if you want to use a different JDK, for building a project ? Use this:
+ <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <executable>${JAVA_HOME_6}/bin/javac</executable>
+                    <compilerVersion>1.6</compilerVersion>
+                </configuration>
+            </plugin>
+You can set the JAVA_HOME_6 in maven settings.xml file or in another properties file in order to make your pom.xml more portable.
+
+2. How do you enforce maven to use a JDK version?
+<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.4</version>
+        <executions>
+          <execution>
+            <id>enforce-java</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireJavaVersion>
+                  <version>1.9.0</version>
+                </requireJavaVersion>
+              </rules>    
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+With this, when building, maven will throw error "Detected JDK Version: 1.8.0-111 is not in the allowed range 1.9.0."
+3. <plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>gwt-maven-plugin</artifactId>
+				<version>2.8.1</version>
+				<executions>
+					<execution>
+						<id>compile</id>
+						<phase>process-classes</phase> i.e just after compile.
+						<goals>
+							<goal>compile</goal>
+						</goals>
+						<configuration>
+							<modules>
+								<module>com.vt.Hello</module>
+								<module>com.vt.World</module>
+							</modules>
+							<draftCompile>true</draftCompile>
+							<force>false</force>
+							<compileReport>false</compileReport>
+							<disableClassMetadata>true</disableClassMetadata>
+							<compilerMetrics>false</compilerMetrics>
+							<disableCastChecking>true</disableCastChecking>
+							<closureCompiler>false</closureCompiler>
+							<optimizationLevel>8</optimizationLevel>
+							<style>OBF</style>
+						</configuration>
+					</execution>
+				</executions>
+				<configuration>
+					<extraJvmArgs>-XX:MaxMetaspaceSize=3072m -Xmx9216m</extraJvmArgs>
+				</configuration>
+			</plugin>
+
+3.	<plugin> 
+        <artifactId>maven-dependency-plugin</artifactId> 
+            <executions> 
+                <execution> 
+                    <phase>process-resources</phase> 
+                    <goals> 
+                        <goal>copy-dependencies</goal> 
+                    </goals> 
+                    <configuration>   
+                        <outputDirectory>${project.build.directory}/lib</outputDirectory> 
+                    </configuration> 
+                </execution> 
+            </executions> 
+    </plugin> 
+
+The above code, makes sure that maven will invoke copy-dependencies goal at process-resources phase. i.e just before compile.
+so, When you say mvn compile, then maven will copy all needed dependencies to your_project_path/target/your_project_name/WEB-INF/lib/ directory,. 
+
+ <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-failsafe-plugin</artifactId>
+               <version>2.12</version>
+               <executions>
+                    <execution>
+                         <goals>
+                          <goal>integration-test</goal>
+                         </goals>
+                         <configuration>
+                          <includes>
+                                <include>**/*end2end/*IT.java</include>
+                          </includes>
+                         </configuration>
+                    </execution>
+               </executions>
+           </plugin>
+		   
+The clean plugin only cleans target directory, if i have some fiels in the src which are to bea clened during the clean lifecycle,
+what to do????
+<plugin>
+	<artifactId>maven-clean-plugin</artifactId>
+	<version>${maven-clean-plugin.version}</version>
+	<configuration>
+		<filesets>
+			<fileset>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>spring-config-listing.txt</include>
+				</includes>
+			</fileset>
+			<fileset>
+				<directory>src</directory>
+				<includes>
+					<include>**/*.hbm.bin</include>
+					<include>version.properties</include>
+					<include>hibernate-hbm-listing.txt</include>
+				</includes>
+			</fileset>
+		</filesets>
+	</configuration>
+</plugin>

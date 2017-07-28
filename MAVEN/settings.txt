@@ -1,0 +1,124 @@
+As we have covered most of the settings.xml as part of repositories, distributionManagement, pluginrepository...etc, we will now just see a overview of settings.xml and talk about any missing tags.
+
+Settings.xml
+----------------------
+<settings>
+  <localRepository/>
+  <interactiveMode/>
+  <usePluginRegistry/>
+  <offline/>
+  
+<profiles>
+  ... repositories, pluginRepositories...etc
+</profiles>
+  <activeProfiles/>
+  
+   <servers>
+    <server>
+      <username/>
+      <password/>
+      <privateKey/>
+      <passphrase/>
+      <filePermissions/>
+      <directoryPermissions/>
+      <configuration/>
+      <id/>
+    </server>
+  </servers>
+  
+  <proxies>
+    <proxy>
+      <active/>
+      <protocol/>
+      <username/>
+      <password/>
+      <port/>
+      <host/>
+      <nonProxyHosts/>
+      <id/>
+    </proxy>
+  </proxies>
+
+  <mirrors>
+    <mirror>
+      <mirrorOf/>
+      <name/>
+      <url/>
+      <layout/>
+      <mirrorOfLayouts/>
+      <id/>
+    </mirror>
+  </mirrors>
+
+  <pluginGroups/>
+</settings>
+
+localRepository:The location of local repository. Default value is: ${user.home}/.m2/repository
+interactiveMode: Whether Maven should attempt to interact with the user for input. (default is true)
+usePluginRegistry:	Whether Maven should use the plugin-registry.xml file to manage plugin versions. (default is true)
+offline: Indicate whether maven should operate in offline mode full-time. (default is true)
+
+What is pluginRegistry
+-------------------------
+The Maven 2 plugin registry (~/.m2/plugin-registry.xml) is a mechanism to control over their build environment. 
+Rather than simply fetching the latest version of every plugin used in a given build, this registry allows the user to peg a plugin to a 
+particular version, and only update to newer versions under certain restricted circumstances. There are various ways to configure or 
+bypass this feature, and the feature itself can be managed on either a per-user or global level.
+
+updateInterval - Determines how often (or whether) the registered plugins are checked for updates.
+checkLatest - Specifies whether the LATEST artifact metadata should be consulted while determining versions for unregistered plugins.
+LATEST metadata is always published when a plugin is installed or deployed to a repository, and so will always reference the newest 
+copy of the plugin, regardless of whether this is a snapshot version or not.
+
+NOTE: Registered plugins will currently only ever be updated with the results of RELEASE metadata resolution.
+Obviously, the plugin registry also contains information about resolved plugin versions. The following information is tracked for each 
+registered plugin:
+lastChecked - The timestamp from the last time updates were checked for this plugin.
+useVersion - The currently registered version for this plugin. This is the version Maven will use when executing this plugin's mojos.
+rejectedVersions - A list of versions discovered for this plugin which have been rejected by the user. 
+This keeps Maven from continually prompting the user to update a given plugin to the same new version.
+
+plugin-registry.xml:
+------------------------
+<pluginRegistry>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>webstart-maven-plugin</artifactId>
+      <useVersion>1.0-alpha-1</useVersion>
+      <rejectedVersions>
+        <rejectedVersion>1.0-beta-3</rejectedVersion>
+      </rejectedVersions>
+    </plugin>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-eclipse-plugin</artifactId>
+      <lastChecked>2012-02-16.17:56:52 -0500</lastChecked>
+      <useVersion>2.8</useVersion>
+    </plugin>
+    <plugin>
+      <groupId>com.vitechinc</groupId>
+      <artifactId>hibernate-gatherer</artifactId>
+      <lastChecked>2015-03-11.03:05:31 -0400</lastChecked>
+      <useVersion>2.1</useVersion>
+    </plugin>
+  </plugins>
+</pluginRegistry>
+
+Proxies in settings.xml
+---------------------------
+There is a high chance your company is set up a firewall and an HTTP proxy server to stop user connects to internet directly. 
+If you are behind a proxy, Maven will fail to download any dependencies.To make it work, you have to declare the proxy server setting in 
+Maven configuration file settings.xml as follows:
+<proxies>
+    <proxy>
+      <id>optional</id>
+      <active>true</active>
+      <protocol>http</protocol>
+      <username>proxyuser</</username>
+      <password>proxypass</password>
+      <host>proxy.host.net</host>
+      <port>80</port>
+      <nonProxyHosts>local.net|some.host.com</nonProxyHosts>
+    </proxy>
+  </proxies>

@@ -1,0 +1,326 @@
+What are snapshots & releases in maven?
+A large software application generally consists of multiple modules and it is common scenario where multiple teams are working on different modules of same 
+application. For example consider a team is working on the front end of the application as app-ui project (app-ui.jar:1.0) and they are using data-service 
+project (data-service.jar:1.0).
+Now it may happen that team working on data-service is undergoing bug fixing or enhancements at rapid pace and they are releasing the library to remote 
+repository almost every other day.
+
+Now if data-service team uploads a new version every other day then following problem will arise data-service team should tell app-ui team every time when they 
+have released an updated code. app-ui team required to update their pom.xml regularly to get the updated version To handle such kind of situation, 
+SNAPSHOT concept comes into play.
+
+What is SNAPSHOT?
+SNAPSHOT is a special version that indicates a current development copy.They represent the latest state of the application. Unlike regular versions, Maven checks for a new SNAPSHOT version in a remote repository 
+for every build. Now data-service team will release SNAPSHOT of its updated code everytime to repository say data-service:1.0-SNAPSHOT replacing a older SNAPSHOT jar.
+
+Snapshot vs release
+In case of Version, if Maven once downloaded the mentioned version say data-service:1.0, it will never try to download a newer 1.0 available in repository. 
+To download the updated code, data-service version is be upgraded to 1.1.
+
+The release version is the most tested, and provides you with the confidence that the program has been used on hundreds of farms for a considerable length of 
+time. It is the version that we recommend to most users in a production environment.
+	   
+Release Process
+The idea is that before a 1.0 release (or any other release) is done, there exists a 1.0-SNAPSHOT(yes, they end with -SNAPSHOT.).
+When deployed, the snapshot is turned into a timestamp. That version is what might become 1.0. 
+It's basically "1.0 under development". This might be close to a real 1.0 release, or pretty far (right after the 0.9 release, for example).
+When it is time to release your code, you will want to change the version listed in the pom. 
+So instead of having a "SNAPSHOT" you would have something like "1.0".
+
+Usually, snapshot dependencies should only exist during development and no released version (i.e. no non-snapshot) should have a dependency on a snapshot version.
+
+How maven downloads snapshots & releases
+For example, a foo-1.0.jar library is considered as a stable version, and if Maven finds it in the local repository, it will use this one for the current build.
+Now, if you need a foo-1.0-SNAPSHOT.jar library, Maven will know that this version is not stable and is subject to changes. 
+That's why Maven will try to find a newer version in the remote repositories, even if a version of this library is found on the local repository. 
+However, this check is made only once per day. Maven provides you a way to can change this update policy in your repository definition:
+
+<repository>
+    <id>foo-repository</id>
+    <url>...</url>
+    <snapshots>
+        <enabled>true</enabled>
+        <updatePolicy>XXX</updatePolicy>
+    </snapshots>
+</repository>
+where XXX can be:
+
+always: Maven will check for a newer version on every build;
+daily, the default value;
+interval:XXX: an interval in minutes (XXX)
+never: Maven will never try to retrieve another version. It will do that only if it doesn't exist locally. 
+
+Repositories in Maven
+-------------------
+In Maven, a repository is a place i.e. directory where all the project jars, library jar, plugins or any other project specific artifacts are stored and 
+can be reused.
+
+Maven repository are of three types
+local
+central
+remote
+
+Local Repository
+Maven local repository is a folder location on your machine.Maven local repository by default get created by Maven in %USER_HOME% directory. 
+To override the default location, mention another path in Maven settings.xml file:
+<settings>
+      <localRepository>C:/MyLocalRepository</localRepository>
+</settings>
+When you run Maven command, Maven will download dependencies to your custom path.
+
+Central Repository
+Maven central repository is repository provided by Maven community. It contains a large number of commonly used libraries.
+When Maven does not find any dependency in local repository, it starts searching in central repository using following URL: http://repo1.maven.org/maven2/
+
+Key concepts of Central repository
+This repository is managed by Maven community.
+It is not required to be configured.
+It requires internet access to be searched.
+To browse the content of central maven repository, maven community has provided a URL: http://search.maven.org/#browse. Using this library, a developer can search all the available libraries in central repository.
+
+Remote Repository
+Sometime, Maven does not find a mentioned dependency in central repository as well then it stops build process and output error message to console. 
+To prevent such situation, Maven provides concept of Remote Repository which is developer's own custom repository containing required libraries or other project 
+jars.
+
+For example, using below mentioned POM.xml,Maven will download dependency (not available in central repository) from Remote Repositories mentioned in the same pom.xml.
+
+<project>
+   <groupId>com.companyname.projectgroup</groupId>
+   <artifactId>project</artifactId>
+   <version>1.0</version>
+   <dependencies>
+      <dependency>
+         <groupId>com.companyname.common-lib</groupId>
+         <artifactId>common-lib</artifactId>
+         <version>1.0.0</version>
+      </dependency>
+   <dependencies>
+   <repositories>
+      <repository>
+         <id>companyname.lib1</id>
+         <url>http://download.companyname.org/maven2/lib1</url>
+      </repository>
+      <repository>
+         <id>companyname.lib2</id>
+         <url>http://download.companyname.org/maven2/lib2</url>
+      </repository>
+   </repositories>
+</project>
+
+Maven Dependency Search Sequence
+When we execute Maven build commands, Maven starts looking for dependency libraries in the following sequence:
+
+Step 1 - Search dependency in local repository, if not found, go to step 2.
+Step 2 - Search dependency in central repository, if not found and remote repository/repositories is/are mentioned then move to step 4 else if found, 
+then it is downloaded to local repository for future reference.
+Step 3 - If a remote repository has not been mentioned, Maven simply stops the processing and throws error (Unable to find dependency).
+Step 4 - Search dependency in remote repository or repositories, if found then it is downloaded to local repository for future reference otherwise Maven 
+as expected stop processing and throws error (Unable to find dependency).
+
+
+Deploying artifacts after build to remote repositories
+---------------------------------------------------------
+When you perform mvn clean install or mvn pckage, the artifacts are installed only in your .m2 folder. But what if you want to deploy the final artifacts to
+a remote artfcats repository(ex: archiva, artifactory, nexus..etc) that your company maintains?
+
+You need to add distributionManagement tag and repositories tag in settings.xml or directly in your POM (settings.xml is better) and give credentials to access those repositories using
+servers tag as follows:
+
+in your pom.xml....
+<distributionManagement> --- > This tag is used to upload artifacts, not for downloading them!
+			     <repository>  -- > This is mandatory, if not given, mvn deploy will fail!
+						<id>vitech.artifactorygold.repo</id>
+						<name>vitech.artifactorygold.repo-releases</name>
+						<url>https://artifactrepo.vitechinc.com/artifactory/libs-release-local</url>  --> This is also fine:<url>file:D:/repository/</url>
+			    </repository>
+			    <snapshotRepository>  -- > This is optional, if not given mvn deploy takes repository tag info to upload both snapshots&releases!
+						<id>vitech.artifactorygold.repo</id>
+						<name>vitech.artifactorygold.repo-snapshots</name>
+						<url>https://artifactrepo.vitechinc.com/artifactory/libs-snapshot-local</url>
+			    </snapshotRepository>
+	</distributionManagement>
+
+settings.xml
+-------------
+<settings>
+	<profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <repositories>  --- > This tag is used to download artifacts, not for uploading them!
+                <repository>
+                    <id>internal</id>
+                    <name>Archiva Managed Internal Repository</name>
+                    <url>http://mgmt-master.mse-esp.com:8990/repository/internal</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>snapshots</id>
+                    <name>Archiva Managed Snapshots Repository</name>
+                    <url>http://mgmt-master.mse-esp.com:8990/repository/snapshots</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
+			<pluginRepositories>
+			  <pluginRepository>
+				<id>evertrue</id>
+				<name>Evertrue Repository</name>
+				<url>http://mgmt-master.mse-esp.com:8990/repository/plugins</url>
+				<releases>
+				  <enabled>true</enabled>
+				</releases>
+				<snapshots>
+				  <enabled>true</enabled>
+				</snapshots>
+			  </pluginRepository>
+			</pluginRepositories>
+        </profile>
+    </profiles>
+	<servers>
+	  <server>
+		<id>internal</id>   ---> this should match
+		<username>admin</username>
+		<password>password1</password>
+	  </server>
+	</servers>
+</settings>
+More on this here: http://evertrue.github.io/blog/2014/07/21/setting-up-an-archiva-repository/
+
+As we can see above, It is always good to store&retrieve Release repositories in one repository than Snapshot repositories.
+
+Difference between DistributionManagement and Repositories
+------------------------------------------------------------------
+Repository element under distributionManagement element specifies where it will deploy the artifacts at the time of deployment. It will come into picture only 
+while mvn deploy i.e deployment time not during mvn install i.e build time.
+
+Where as the Repository element under repositories element specifies from where dependencies needs to be picked up. It will come into picture only while 
+mvn install not during mvn deploy. If u want confirm this, just remove the distributionManagement tag from the POM, keep the repositories tag untouched, 
+and try mvn deploy: maven will raise error saying "Deployment failed: repository element was not specified in the POM inside distributionManagement element...".
+So it confirms, it is the distributionManagement tag that takes care of uploading the artfcats to repositories not the repositories tag!
+
+
+In the above setting.xml snippet, We also see a tag called pluginRepositories, what is pluginRepositories used for?
+
+Difference between repository and pluginrepository
+-------------------------------------------------------
+There is no technical difference at all. It's for having different configurations/behavior for plugins in contrary to normal artifacts.
+Maven separates plugins from "normal" dependencies of a project. All artifacts that are used by plugins are resolved from the plugin-repository. 
+That is, if one of your plugins uses JUnit, junit.jar will be loaded from the plugin-repository. The same is true, of course, for the plugin-jars 
+themselves. On the other hand, All direct dependencies of your product (libraries, frameworks, whatever) are resolved from the "normal" repository.
+
+
+Maven - Deployment Automation
+-----------------------------
+We are doing deployments every day. When u do deployments, maven will simply upload the artfcats in the snapshot repositries. 
+But, What about release? How to tell maven to upload the stable version(release) to releases repository instead of snapshot repository?
+
+
+Releasing:
+mvn release:prepare release:perform
+
+release:prepare:
+checks that code base doesnt have any uncommitted changes and the project should depend on no SNAPSHOT dependencies
+changes the version of the project in the pom file to a full release number (remove SNAPSHOT suffix) – in our example – 0.1
+runs the project test suites
+commits and push the changes
+creates the tag out of this non-SNAPSHOT versioned code
+increases the version of the project in the pom – in our example – 0.2-SNAPSHOT
+commits and pushes the changes
+
+release:perform:
+checkouts release tag from SCM and then builds and deploys released code.
+
+Ex:
+<project>
+   <groupId>bus-core-api</groupId>
+   <artifactId>bus-core-api</artifactId>
+   <version>1.0-SNAPSHOT</version>
+   <packaging>jar</packaging> 
+   <scm>
+      <connection>scm:svn:http://localhost:8080/svn/jrepo/trunk/Framework</connection>
+      <developerConnection>scm:svn:${username}/${password}@localhost:8080:common_core_api:1101:code</developerConnection>
+   </scm>
+   <distributionManagement>
+      <repository>
+         <id>Core-API-Java-Release</id>
+         <name>Release repository</name>
+         <url>http://localhost:8081/nexus/content/repositories/releases</url>
+      </repository>
+   </distributionManagement>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-release-plugin</artifactId>
+            <version>2.0-beta-9</version>-----------> Note, this will not be invoked automatically during mvn deploy, not you can add a phase here!
+			                                          It must be invoked manually: mvn release:prepare release:perform
+            <configuration>
+               <useReleaseProfile>false</useReleaseProfile>
+               <goals>deploy</goals>
+               <scmCommentPrefix>[bus-core-api-release-checkin]</scmCommentPrefix>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+</project>
+
+Note that the release plugin is NOT bound to a lifecycle phase it will not get called during the mvn deploy, you need to invoke the plugin 
+directly by mvn release:prepare release:perform. If you want this one to be invoked during deploy use the folloing:
+<plugin>
+  <groupId>org.apache.maven.plugins</groupId>
+  <artifactId>maven-deploy-plugin</artifactId>
+  <version>X.Y</version>
+  <configuration>
+    <skip>true</skip>
+  </configuration>
+</plugin>
+
+<plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-release-plugin</artifactId>
+	<version>2.0-beta-9</version>
+	<executions>
+		<execution>
+			<id>default-deploy</id>
+			<phase>deploy</phase>
+			<goals>
+				<goal>prepare</goal>
+				<goal>perform</goal>
+			</goals>
+		</execution>
+	</executions>
+</plugin>
+
+When the plugin is called the following output is produced:
+[INFO]
+[INFO] --- maven-release-plugin:2.0-beta-9:prepare (heloo...............) @ core ---
+[INFO] Verifying that there are no local modifications...
+[INFO] Executing: cmd.exe /X /C "git status"
+[INFO] Working directory: C:\TOP_SECREAT\hierrachy_ws\core
+[INFO] Checking dependencies and plugins for snapshots ...
+What is the release version for "core"? (com.vitech.projects:core) 0.0.1: : 0.0.1
+What is SCM release tag or label for "core"? (com.vitech.projects:core) core-0.0.1: : 0.0.1
+What is the new development version for "core"? (com.vitech.projects:core) 0.0.2-SNAPSHOT: : 0.0.2
+[INFO] Transforming 'core'...
+
+If this is done by jenkins, then At the Build configuration section, we can simply configure the following Maven command to run:
+
+release:clean release:prepare release:perform -DreleaseVersion=${releaseVersion} -DdevelopmentVersion=${developmentVersion}
+
+When running a parametrized job, Jenkins will prompt the user to specify values for these parameters – so each time we run the job we need 
+to fill in the right values for releaseVersion and developmentVersion. I think Vitech uses this approch for releasing builds.
+Each pom.xml in the product has the version "10.5.7-BETAONE-SNAPSHOT"
+
+
