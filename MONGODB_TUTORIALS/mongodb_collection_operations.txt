@@ -7,6 +7,11 @@ findOne,findOneAndUpdate,findOneAndReplace,findOneAndDelete,findAndModify : All 
 bulkWrite
 find : returns a cursor.
 
+Tutorials:
+http://www.w3resource.com/mongodb/introduction-to-mongodb-index.php
+https://www.codeproject.com/Articles/1091645/MongoDB-Tutorial-Day-Performance-Indexing
+https://www.tutorialspoint.com/mongodb/
+
 insertOne:
 =================
 Inserts a document into a collection and returns the WriteResult.
