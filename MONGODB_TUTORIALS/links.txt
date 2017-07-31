@@ -1,0 +1,10 @@
+https://stackoverflow.com/questions/32283964/mongodb-update-with-isolated
+https://docs.mongodb.com/manual/core/write-operations-atomicity/
+
+ Isolation does not occur on multiple documents, there is an $isolated ( http://docs.mongodb.org/manual/reference/operator/isolated/ ) operator but it is highly recommened not to use it, plus it isn't supported on sharded collections.
+
+http://findnerd.com/list/view/Two-Phase-commits-in-MongoDB/5965/
+http://keyangxiang.com/2016/03/17/Mongodb-two-phase-lock-example/
+
+mongodb remove key from document: https://docs.mongodb.com/manual/reference/operator/update/unset/
+mongodb remove element from array: https://docs.mongodb.com/manual/reference/operator/update/pull/

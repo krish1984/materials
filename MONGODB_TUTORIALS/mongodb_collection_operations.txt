@@ -1,0 +1,137 @@
+collection methods:
+====================
+
+find:
+=========
+synatx:
+db.collection.find(query, projection):
+Selects documents in a collection and returns a cursor to the selected documents.Executing db.collection.find() 
+in the mongo shell automatically iterates the cursor to display up to the first 20 documents. Type "it" to continue iteration.
+Ex:
+
+db.products.find( { qty: { $gt: 4 } } )
+                      .sort({"price":1})
+					  .readConcern("linearizable").maxTimeMS(10000)
+					  .count()
+					  .limit()
+https://docs.mongodb.com/manual/mongo/#executing-queries					  
+					  
+cursor methods:
+==================
+cursor.forEach():
+	Applies a JavaScript function for every document in a cursor.
+	Ex: db.users.find().forEach( function(myDoc) { print( "user: " + myDoc.name ); } );
+
+
+cursor.hasNext():
+	Returns true if the cursor has documents and can be iterated.
+
+cursor.next():
+	Returns the next document in a cursor.
+
+cursor.toArray():
+	Returns an array that contains all documents returned by the cursor.
+
+cursor.pretty():
+	Configures the cursor to display results in an easy-to-read format.
+
+cursor.sort():
+	Returns results ordered according to a sort specification.
+
+cursor.batchSize(<size>):	
+	Controls the number of documents MongoDB will return to the client in a single network message. 
+	default=20, specifying a size <20 will not change the batchsize.
+
+cursor.count():
+	Modifies the cursor to return the number of documents in the result set rather than the documents themselves.
+
+cursor.limit():
+	Constrains the size of a cursor’s result set.
+
+cursor.skip(<int>):
+	skips the given no of records from the beginning of resultset. Must be a positive value.
+
+cursor.size():
+	Returns a count of the documents in the cursor after applying skip() and limit() methods.
+
+cursor.hint():
+	Forces MongoDB to use a specific index for a query.
+	Ex: db.users.find().hint( { age: 1 } )
+
+
+cursor.map( <function>):
+	Applies a function to each document in a cursor and collects the return values in an array.
+	Ex:
+	db.users.find().map( function(u) { return u.name; } );
+	ouput will be just an array of elements.
+
+cursor.maxScan():
+	Specifies the maximum number of documents to scan.
+
+cursor.maxTimeMS():
+	Specifies a querytimeout in milliseconds.
+
+cursor.noCursorTimeout():
+	Instructs the server to avoid closing a cursor automatically after a period of inactivity.
+
+cursor.objsLeftInBatch():
+	Returns the number of documents left in the current batch.
+	Ex:
+	var h = db.users.find(); //total 5
+	h.next()
+	h.next()
+	print(h.objsLeftInBatch()) //gives 3
+
+
+cursor.readConcern(<level>):	
+Specifies a read concern for a find() operation.
+
+		local: Default. The query returns the instance’s most recent data. Provides no guarantee that the data has been written to a 
+		majority of the replica set members (i.e. may be rolled back).
+
+		majority:
+		The query returns the instance’s most recent data acknowledged as having been written to a majority of members in the replica set.
+		To use read concern level of "majority",mongod must have started with enableMajorityReadConcern config set to true.
+
+		linearizable: The query returns data that reflects all successful writes issued with a write concern of "majority" and 
+		acknowledged prior to the start of the read operation. For replica sets that run with writeConcernMajorityJournalDefault set to true, 
+		linearizable returns data that will never be rolled back.
+		
+		https://stackoverflow.com/questions/42615319/the-difference-between-majority-and-linearizable
+		
+		With writeConcernMajorityJournalDefault set to false, MongoDB will not wait for w: "majority" writes to be durable before 
+		acknowledging the writes. As such, "majority" write operations could possibly roll back in the event of a loss of a replica 
+		set member.
+
+		You can specify linearizable read concern for read operations on the primary only.
+		Linearizable read concern guarantees only apply if read operations specify a query filter that uniquely identifies a single document.
+
+cursor.snapshot():
+	Ensures that the query will not return a document multiple times, even if intervening write operations result in a move of the document 
+	due to the growth in document size.
+	You must apply snapshot() to the cursor before retrieving any documents from the database.
+	You can only use snapshot() with unsharded collections.
+	The snapshot() does not guarantee isolation from insertion or deletions.
+	The snapshot() cannot be used with sort() or hint().
+	
+cursor.tailable():
+	Marks the cursor as tailable. Only valid for cursors over capped collections. Using it on non capped collection gibes error.
+	Ex: cursor.tailable( { isAwaitData : <boolean> } )
+	A tailable cursor performs a collection scan over a capped collection. It remains open even after reaching the end of the collection. 
+	Applications can continue to iterate the tailable cursor as new data is inserted into the collection.
+
+	If awaitData is set to true, when the cursor reaches the end of the capped collection, MongoDB blocks the query thread for a period of 
+	time waiting for new data to arrive. When new data is inserted into the capped collection, the blocked thread is signaled to wake up 
+	and return the next batch to the client.
+
+
+cursor.explain():
+	Reports on the query execution plan for a cursor.
+
+cursor.addOption()	
+	Adds special wire protocol flags that modify the behavior of the query.
+
+
+cursor.close():
+	Close a cursor and free associated server resources.The server will automatically close cursors that have 
+	no remaining results, as well as cursors that have been idle for a period of time

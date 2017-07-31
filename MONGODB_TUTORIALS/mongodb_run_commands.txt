@@ -1,0 +1,560 @@
+MongoDB run commands:
+
+General commands: 
+------------------
+insert : Used to insert documents.
+find : Used to perform queries.
+aggregate:Performs aggregation tasks such as group using the aggregation framework (follows pipe line style, in which each stage op is 
+input to next stage in the pipeline).
+count:	Counts the number of documents in a collection.
+distinct:	Displays the distinct values found for a specified key in a collection.
+group:	Deprecated. Groups documents in a collection by the specified key and performs simple aggregation.
+mapReduce:	Performs map-reduce aggregation for large data sets.
+
+insert:
+===============
+syntax:
+db.runCommand(
+{
+   insert: <collection>, //the collection into which records need to be inserted.
+   documents: [ <document>, <document>,... ], //array of docs to be inserted
+   
+   ordered: <boolean>,     // If true, then when an insert of a document fails, returns without inserting any remaining documents else,
+                            continues to insert the remaining documents. Defaults to true.
+   writeConcern: { <write concern> }
+}
+)
+
+update:
+===============
+syntax:
+db.runCommand(
+{
+   update: <collection>,
+   updates:
+      [
+         { q: <query>, u: <update>, upsert: <boolean>, multi: <boolean> },
+         { q: <query>, u: <update>, upsert: <boolean>, multi: <boolean> },
+         { q: <query>, u: <update>, upsert: <boolean>, multi: <boolean> },
+         ...
+      ],
+   ordered: <boolean>,
+   writeConcern: { <write concern> }
+});
+
+delete:
+===============
+syntax:
+db.runCommand(
+{
+  delete: <collection>,
+   deletes: [
+      { q : <query>, limit : <0 means all docs> },
+      { q : <query>, limit : <integer>  },
+      { q : <query>, limit : <integer>  },
+      ...
+   ],
+   ordered: <boolean>,
+   writeConcern: { <write concern> }
+});
+
+find:
+===============
+syntax:
+db.runCommand({
+   "find": <collection>, //The name of the collection to query
+   "filter": <document>, // specify query filter to narrow down the results.
+   "sort": <document>,   // sort the query results.
+   "projection": <document>,  //specify columns to be shown in the reuslts.
+   "skip": <int>,   //Number of documents to skip from the begining of the resultset. Defaults to 0
+   "limit": <int>,  //The maximum no of documents to return. default is no limit. A limit of 0 is equivalent to setting no limit.
+   "batchSize": <int>, //The number of documents to return in the first batch.
+   "singleBatch": <bool>, //tells whether to close the cursor after the first batch. Defaults to false.
+   "maxScan": <int>, // Maximum number of documents or index keys to scan when executing the query.
+   "maxTimeMS": <int>, //The cumulative time limit in milliseconds for processing operations on the cursor.
+   "readConcern": <document>,
+   "snapshot": <bool>, //Prevents the cursor from returning a document more than once because of an intervening write operation.
+   "allowPartialResults": <bool> //In a sharded collection, returns partial results even if some shards are unavailable 
+                                 instead of throwing an error.
+});
+
+aggregate:
+===============
+syntax:   
+db.runCommand( {
+  aggregate: "<collection>",     //name of collection to perform aggregate
+  pipeline: [ <stage>, <...> ],  //An array of aggregation pipeline stages that process and transform the document stream.
+  allowDiskUse: <boolean>,      //Aggregation pipeline stages have maximum memory use limit. To handle large 
+								datasets, set allowDiskUse option to true to enable writing data to temporary files.
+  
+  cursor: <batchsize>,          //required. the batchsize property tells, the no of docs to return in each batch of the response.
+                                 default=20, giveing a batchsize=19 does not effect the result set.
+  maxTimeMS: <int>,            //Optional. Specifies a time limit in milliseconds for processing, after that mongo kills it using db.killOp().
+  readConcern: <document>      //speifies the read concern.
+} )
+
+count:
+===============
+syntax:
+db.runCommand( 
+{
+  count: <collection-name>, //name of the collection to count.
+  query: <document>, //A query that selects which documents to count in a collection.
+  limit: <integer>, // The maximum number of matching documents to return.
+  skip: <integer>,  //The number of matching documents to skip from begining of the resultset before returning results.
+  readConcern: <document>
+}
+);
+
+distinct:
+===========
+syntax:
+db.runCommand(
+{
+  distinct: "<collection>", //	The name of the collection to query for distinct values.
+  key: "<field>",           //The field for which to return distinct values.
+  query: <query>,   //A query that specifies the documents from which to retrieve the distinct values./
+  readConcern: <read concern document>  //ex: readConcern: { level: "local|majority|linearizable" }
+}
+)
+mapReduce:
+============
+The mapReduce command allows you to run map-reduce operations over a collection.
+synatx:
+db.runCommand(
+               {
+                 mapReduce: <collection>, //the collection on which to perform map-reduce operation.
+                 map: <the_map_function>,    // function(){...emit(key,value}
+                 reduce: <the_reducce_function>, //function(each_distinct_key, that_key's_values) { return ..}
+                 finalize: <function>, //modifies the output.
+                 out: <output>, //Specifies where to output the result of the map-reduce operation. You can either output to a collection 
+				                or return the result inline. Outputting a collection is only possible on a primary member of a replica set 
+								where as on a secondary, only inline output is possible.
+								
+                 query: <document>, //specifies filter on which records map-reduce operation needs to be performed.
+				 
+                 sort: <document>, // Sorts the input documents. This option is useful for optimization. For example, specify the sort key to be the same as 
+				                      the emit key so that there are fewer reduce operations. The sort key must be in an existing index for this collection.
+                 limit: <number>,  //Specifies a maximum number of documents for the input into the map function.
+                 
+				 scope: <document>, //Specifies global variables that are accessible in the map, reduce and finalize functions.
+                 
+				 jsMode: <boolean>  //Specifies whether to convert intermediate data into BSON format between the execution of the map 
+				                     and reduce functions. Defaults to false.
+
+									If false:
+									Mongo converts the js objects emitted by the map function to BSON objects. These 
+									BSON objects are then converted back to JavaScript objects when calling the reduce function.
+									The map-reduce operation places the intermediate BSON objects in temporary, on-disk. 
+									This allows the map-reduce operation to execute over arbitrarily large data sets.
+									
+									If true:
+									The js objects emitted during map function are directly passed to reduce function without to-fro conversion
+									resulting faster execution.
+									You can only use jsMode for result sets with fewer than 500,000 distinct key arguments to the mapper’s emit() function.
+									The jsMode defaults to false.
+               }
+             )
+	 
+out options:
+-----------------
+
+1. out: <collectionName> : Outputs to a Collection,not available on secondary members of replica sets
+
+2. 
+out: { <action>: <collectionName>, db: <dbName>, sharded: <boolean>}: 
+                Outputs to an already exisitng collection. only available when the collection already exists.
+
+<action>: Specify one of the following actions:
+replace: Replace the the existing collection's contents.
+merge: Merge the new result with the existing result. i.e If an existing document has the same key as the new result, overwrites that existing document.
+
+db: The db into which the map-reduce to write its output. By default this will be the same database as the input collection.
+sharded: If true and sharding is enabled on output database, map-reduce will shard the output collection using the _id field as the shard key.
+
+
+3. out: { inline: 1 } : directly render the output as a query result without creating collection; 
+                         only available option for out on secondary members of replica sets.
+						 
+The output of a map-reduce operation by default contains:
+1. Map function is called for each document.
+2. If the ouputs of all map calls (i.e for all docs) are same (ie. same key & same value), then reduce function will not be called. 
+The output will be what ever emitted by each map function. i.e {_id: key emitted by map, value: value emitted by map}.
+3. reduce function will not be called for a key, if a particular key's corresponding values array size=1.
+The output for this key will be what ever emitted by the map function. i.e {_id: key emitted by map, value: value emitted by map}.
+
+5. If both map & reduce gets called for a key & a finalize function is used, then the out for that key group is: 
+    "_id": the key passed to reduce function as input,
+	"value": the value returned by the reduce function.
+
+6. If both map & reduce gets called for a key & a finalize function is used then, the ouput will be:
+      "_id": the key passed to reduce function as input,
+	  "value": the value returned by the finalize function.
+
+
+	  
+EXAMPLE OF RUN COMMANDS:
+=========================
+
+aggregate:
+
+Ex: Given an article collection:
+{
+   _id: ObjectId("52769ea0f3dc6ead47c9a1b2"),
+   author: "abc123",
+   title: "zzz",
+   tags: [ "programming", "database", "mongodb" ]
+}
+
+db.runCommand( {
+   aggregate: "articles",
+   pipeline: [
+      { $project: { tags: 1 } },         //take only tags fields from each doc.
+      { $unwind: "$tags" },              //split each doc into multiple records: op is one doc for each ele in the tags array.
+      { $group: { _id: "$tags", count: { $sum : 1 } } }
+   ],
+   explain: true,
+   cursor: { }
+} )
+
+Rather than run the aggregate command directly, users should use the db.collection.aggregate().
+
+count:
+
+Ex: 
+
+db.runCommand( { count: 'orders' } )
+db.runCommand( { count:'orders',
+                 query: { ord_dt: { $gt: new Date('01/01/2012') } }
+               } )
+
+On a sharded cluster, count can result in an inaccurate count if a chunk migration is in progress.
+To avoid these situations, on a sharded cluster, use the $group stage of the db.collection.aggregate() method to $sum the documents.
+
+distinct:
+===========
+Given inventory collection: 
+
+{ "_id": 1, "dept": "A", "item": { "sku": "111", "color": "red" }, "sizes": [ "S", "M" ] }
+
+Following are the examples: 
+
+db.runCommand ( { distinct: "inventory", key: "dept" } )
+db.runCommand ( { distinct: "inventory", key: "item.sku", query: { dept: "A"} } )
+
+mapReduce:
+============
+Ex:
+Given orders collection: 
+{
+     _id: 3,
+     cust_id: "abc123",
+     price: 25,
+     items: [ { item_code: "mmm", qty: 5, price: 2.5 },
+              { item_code: "nnn", qty: 5, price: 2.5 } ]
+}
+
+display the total price Per Customer?
+db.runCommand(
+               {
+                 mapReduce: "orders",
+                 map:  function() {
+                       emit(this.cust_id, this.price);
+                 },
+                 reduce: function(keyCustId, valuesPrices) {
+                          return Array.sum(valuesPrices);
+                 },
+                
+                 out: "cust1_total_price"
+               }
+             )
+Op: { "_id" : "abc123", "value" : 25.0}
+{
+    "result" : "cust_total_price",
+    "timeMillis" : 357,
+    "counts" : { "input" : 1,  "emit" : 1,  "reduce" : 1, "output" : 1 },
+    "ok" : 1.0
+}
+			 
+Now, given the following orders collection:
+db.orders.insert( [
+{
+    "_id" : 1,"cust_id" : "xyz","price" : 55.0,
+    "items" : [ 
+        {"item_code" : "mmm","qty" : 2.0,"price" : 2.5 }, {"item_code" : "ccc","qty" : 5.0,"price" : 5.0}
+    ]
+},
+{
+    "_id" : 2, "cust_id" : "abc123","price" : 25.0,
+    "items" : [ 
+        {"item_code" : "mmm", "qty" : 5.0, "price" : 2.5}, { "item_code" : "nnn",  "qty" : 5.0,"price" : 2.5}
+    ]
+},
+{
+    "_id" : 3, "cust_id" : "ert", "price" : 234.0,
+    "items" : [ 
+        { "item_code" : "fff","qty" : 8.0,"price" : 2.5}, { "item_code" : "mmm","qty" : 1.0,"price" : 2.5}
+    ]
+}
+]);
+
+display the how many times an item was purchased Order and Total Quantity with Average Quantity Per Item since 01/01/2012 ?
+
+db.runCommand(
+               {
+                 mapReduce: "orders",
+                 map:  function() { //gets called for each record.
+					       for (var i = 0; i < this.items.length; i++) {
+							   var item_code = this.items[i].item_code;
+							   var value = {
+											 count: 1,
+											 qty: this.items[i].qty
+										   };
+							   emit(item_code, value);
+						   }
+                 },
+                 reduce: function(item_code, allpurchasesOftheItem) {
+							//ex input: {"mmm" : [{1,5}, {1,8}]}
+                            reducedVal = { count: 0, qty: 0 };
+							 for (var idx = 0; idx < allpurchasesOftheItem.length; idx++) {
+								 reducedVal.count += allpurchasesOftheItem[idx].count;
+								 reducedVal.qty += allpurchasesOftheItem[idx].qty;
+							 }
+							 return reducedVal; //ex ouput: {"mmm" : {2,13}, "nnn": {3,5} }
+                 },
+                finalize: function (key, reducedVal) {
+						   reducedVal.avg = reducedVal.qty/reducedVal.count;
+						   return reducedVal;
+						},
+                 out: "cust_total_price"
+               }
+             )
+output:
+{
+    "results" : [ 
+        { "_id" : "ccc", "value" : {"count" : 1.0, "qty" : 5.0, "avg" : 5.0 }   }, 
+        { "_id" : "fff", "value" : { "count" : 1.0,"qty" : 8.0,"avg" : 8.0 }}, 
+        {"_id" : "mmm", "value" : {"count" : 3.0, "qty" : 8.0, "avg" : 2.66}}, //see, reduce was called only for this!
+        { "_id" : "nnn", "value" : { "count" : 1.0,"qty" : 5.0, "avg" : 5.0 } }
+    ],
+    "timeMillis" : 15,
+    "counts" : { "input" : 3, "emit" : 6,"reduce" : 1, "output" : 4 },
+    "ok" : 1.0
+}
+
+find:
+============
+Ex:
+db.runCommand(
+   {
+     find: "restaurants",
+     filter: { rating: { $gte: 9 }, cuisine: "italian" },
+     projection: { name: 1, rating: 1, address: 1 },
+     sort: { name: 1 },
+     readConcern: { level: "majority" }
+     limit: 5
+   }
+)
+
+insert:
+===============
+Exx:
+db.runCommand(
+   {
+      insert: "users",
+     documents: [
+         { _id: 2, user: "ijk123", status: "A" },
+         { _id: 3, user: "xyz123", status: "P" },
+         { _id: 4, user: "mop123", status: "P" }
+      ],
+      ordered: false,
+      writeConcern: { w: "majority", wtimeout: 5000 }
+   }
+)
+
+update:
+===============
+Ex:
+db.runCommand(
+   {
+      update: "users",
+      updates: [
+         {
+           q: { user: "abc123" }, u: { $set: { status: "A" }, $inc: { points: 1 } }
+         }
+      ],
+      ordered: false,
+      writeConcern: { w: "majority", wtimeout: 5000 }
+   }
+)
+Because <update> document does not specify the optional multi field, the update only modifies one document, even if more than one 
+document matches the q match condition. If you want to update multiple, specify : multi:true.
+
+delete:
+===============
+Ex: 
+db.runCommand(
+   {
+      delete: "orders",
+      deletes: [ { q: { status: "D" }, limit: 0 } ], //limit=0 tells to delete all docs matching the criteria.
+      writeConcern: { w: "majority", wtimeout: 5000 }
+   }
+)
+db.runCommand(
+   {
+      delete: "orders",
+      deletes: [
+         { q: { status: "D" }, limit: 0 },
+         { q: { cust_num: 99999, item: "abc123", status: "A" }, limit: 1 }
+      ],
+      ordered: false,
+      writeConcern: { w: 1 }
+   }
+)
+
+Admin commands:
+=========================
+
+renameCollection:
+--------------------	
+Changes the name of an existing collection.
+Ex:db.orders.renameCollection( "orders2014" )
+
+copydb:	Copies a database from a remote host to the current host.
+-------
+Ex:
+use admin
+db.runCommand({
+   copydb: 1,
+   fromdb: "test",
+   todb: "records",
+   fromhost: "example.net",
+   username: "reportingAdmin", //only required if the host mongod requires auth.
+   nonce: "<nonce>", //only required if the host mongod requires auth.
+   key: "<passwordhash>" //only required if the host mongod requires auth.
+});
+
+dropDatabase:	Removes the current database.
+-------------
+use temp; switch to temo db to delete.
+db.runCommand( { dropDatabase: 1 } ) 
+
+listCollections:	Returns a list of collections in the current database.
+-----------------
+Ex:
+use records
+db.getCollectionInfos();
+db.getCollectionNames();
+
+create:	Creates a new collection  or view.
+-------
+Ex:
+//create a capped collection.
+db.runCommand( { 
+create: "collection", 
+capped: true, 
+size: 64 * 1024 
+} )
+
+//create a view.
+db.runCommand ( {
+   create: "managementFeedback",
+   viewOn: "survey",
+   pipeline: [ { $project: { "management": "$feedback.management", department: 1 } } ],
+   size: <max_size>,
+  max: <max_documents>
+} )
+
+clone:	Copies a database from a remote host to the current host.
+Ex:db.runCommand({ clone: "db1.example.net:27017" })
+
+cloneCollection:	Copies a collection from a remote host to the current host.
+-----------------
+Ex:
+db.runCommand( { cloneCollection: "users.profiles",  // copies the profiles collection from the users database 
+                 from: "mongodb.example.net:27017",
+                 query: { 'active' : true } //only copies documents that satisfy the query { 'active' : true }.
+               } )
+			   
+cloneCollectionAsCapped:	Copies a non-capped collection as a new capped collection.
+----------------------
+Ex:
+db.runCommand({ cloneCollectionAsCapped: <existing collection>, toCollection: <capped collection>, size: <capped size> });
+
+convertToCapped:	Converts a non-capped collection to a capped collection.
+------------------
+Ex:
+db.runCommand({ convertToCapped: <collection>, size: <capped size> });
+
+createIndexes:	Builds one or more indexes for a collection.
+
+listIndexes:	Lists all indexes for a collection.
+--------------
+Ex:db.runCommand({ "listIndexes": "<collection-name>" })
+
+dropIndexes:	Removes indexes from a collection.
+-----------
+Ex: 
+db.runCommand({ dropIndexes: "collection", index: "*" });
+db.runCommand({ dropIndexes: "collection", index: "age_1" });
+
+fsync:	Flushes pending writes to the storage layer and locks the database to allow backups.Optionally, you can use fsync to lock the 
+---------
+mongod instance and block write operations for the purpose of capturing backups.
+Ex:
+db.runCommand({ fsync: 1, lock: <Boolean> });
+After fsync with the lock option runs on a mongod, all write operations will block until a subsequent unlock. Read operations may also block. 
+As a result, fsync with lock is not a reliable mechanism for making a mongod instance operate in a read-only mode.
+WARNING
+When calling fsync with the lock option, ensure that the connection remains open to allow a subsequent call to db.fsyncUnlock().
+Closing the connection may make it difficult to release the lock.
+
+reIndex:	
+----------
+Rebuilds all indexes on a collection.This operation may be expensive for collections that have a large amount of data 
+or large number of indexes. For replica sets, reIndex will not propagate from the primary to secondaries. reIndex will 
+only affect a single mongod instance.
+Ex:
+db.runCommand( { reIndex: "collection" } ); or db.collection.reIndex();
+
+repairDatabase:	Repairs any errors and inconsistencies with the data storage.
+Ex: db.runCommand({ repairDatabase: 1,
+  preserveClonedFilesOnFailure: <boolean>,
+  backupOriginalFiles: <boolean> })
+  
+killCursors:	Kills the specified cursors for a collection.
+-----------
+Ex:
+db.runCommand( { "killCursors": <collection>, "cursors": [ <cursor id1>, ...The ids of the cursors to kill. ] } )
+
+Consider a query db.runCommand( { find: "restaurants"}) returns the following result.
+{
+   "waitedMS" : NumberLong(0),
+   "cursor" : {
+      "firstBatch" : [
+         {
+            "_id" : ObjectId("57506d63f578028074723dfd"), "name" : "Cakes and more"
+         }
+      ],
+      "id" : NumberLong("18314637080"),
+      "ns" : "test.restaurants"
+   },
+   "ok" : 1
+}
+To kill this cursor: 
+use test; db.runCommand( { killCursors: "restaurants", cursors: [ NumberLong("18314637080") ] } );
+
+shutdown:	The shutdown command cleans up all database resources and then shuts down the mongod or mongos process.
+---------
+Ex:  db.runCommand( { shutdown: 1 , force: true,  timeoutSecs: 60 } );
+
+
+currentOp:	Returns a document that contains information on in-progress operations for the database instance.
+----------
+Ex:db.currentOp( { "$all": true,"$ownOps": true //view ur own operations } )
+
+killOp:	Terminates an operation as specified by the operation ID.
+--------
+Ex:
+use admin
+db.runCommand( { "killOp": 1, "op": 3478 } )

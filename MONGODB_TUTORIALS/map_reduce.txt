@@ -1,0 +1,78 @@
+var mapFunction1 = function() {
+           if ( this.hasOwnProperty("statusDetails") &&  this.statusDetails.length ==4 && this.hasOwnProperty("messageType")) {
+             emit(this._id, { messageType: this.messageType,  diff : this.statusDetails[3].date - this.statusDetails[0].date } );
+           }
+};
+                   
+var reduceFunction1 = function(id, diff) {
+                          return diff;
+                      };
+                      
+db.runCommand({'mapreduce': 'request',
+                      'map' : mapFunction1,
+                     'reduce': reduceFunction1,
+                      'out': {inline: 1} 
+                      
+                   })
+--------------------------------------
+
+var mapFunction1 = function() {
+           if ( this.hasOwnProperty("statusDetails") &&  this.statusDetails.length ==5 && this.hasOwnProperty("messageType")
+               && this.status=="COMPLETE") {
+              
+             emit(this._id, { messageType: this.messageType,  diff : this.statusDetails[4].date - this.statusDetails[0].date } );
+           }
+};
+                   
+var reduceFunction1 = function(id, diff) {
+                          return diff;
+                      };
+                      
+db.request.mapReduce( mapFunction1,
+                     reduceFunction1,
+                     {
+                       out: { merge: "map_reduce_example" }
+                     }
+                   )
+				   
+				   
+then, aggregate it:
+db.map_reduce_example.aggregate([ 
+{
+	$group : {
+		_id:{ messageType:"$value.messageType" },
+                
+		avg: { $avg: "$value.diff" } 
+	}
+}, 
+{
+	$project : {
+		"avg" : 1, "messageType":1
+	}
+} ,
+{
+	$sort : {
+		"avg" : -1
+	}
+}
+
+])
+-------------
+Notethat if u group by both id & messageType this way :  _id:{ "_id": "$_id", messageType:"$value.messageType" }, then no grouping is done by messageType!
+so, if there 10 reqs, with 5 records are with messageType:THIRDPARTY and 5 with messageType:IMAGE, you dont see 2 records in ur results.
+Intead u will see 10 records each having its avg calculated on its own value: value of each rec/1
+
+---------------------------------------------------------
+
+satya [2:54 PM] 
+db.request.aggregate([ {$unwind:"$statusDetails"},{$group:{"_id":"$_id","analyzeDate":{$first:"$statusDetails.date"},
+"publishDate":{$last:"$statusDetails.date"},"messageType":{$first:"$messageType"} }},{$project: {item:-1,messageType:"$messageType","analyzeDate":"$analyzeDate",publishDate:"$publishDate", difference: {$subtract:["$publishDate","$analyzeDate"]}}}])
+
+
+db.request.aggregate([ {$unwind:"$statusDetails"},
+{$group:{"_id":"$_id","analyzeDate":{$first:"$statusDetails.date"},"publishDate":{$last:"$statusDetails.date"},"messageType":{$first:"$messageType"} }},
+{$project: {item:-1,messageType:"$messageType","analyzeDate":"$analyzeDate",publishDate:"$publishDate",
+    difference: {$subtract:["$publishDate","$analyzeDate"]}}},{$group:{"_id":"$messageType","averageTime":{$avg:"$difference"}}}])
+-----------------------------
+
+

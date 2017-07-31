@@ -1,0 +1,58 @@
+given 
+
+item  satisfaction timetaken
+idly - 5 - 2
+puri - 7 - 5
+dosa - 10 - 3
+pongal -8 - 2
+idly sambar - 8 - 14
+
+and time:15min , what is the max satisfaction he can get?
+
+
+step1: (order by satisfaction desc)
+dosa - 10 - 3
+pongal -8 - 2
+idly sambar - 8 - 14
+puri - 7 - 5
+idly - 5 - 2
+
+step2: (order by timetaken asc)
+dosa - 10 - 3
+idly sambar - 8 - 14
+pongal -8 - 2
+puri - 7 - 5
+idly - 5 - 2
+
+step3
+count on max satisfaction by adding up each satisfaction one after other by making sure that the current totla time <= giventime
+----------------------------------------------------------------------------------------------------------------------------------
+How can we parllelize?
+
+suppose we splitted data into 3 parts:
+after each worker sorts its data it looks as follows:
+
+part1:
+dosa - 10 - 3               
+pongal -8 - 2   o/p: 18 - 5
+
+part2
+idly sambar - 8 - 2
+puri - 7 - 1            o/p:  15 - 3
+
+part3
+wada - 14 -1
+dosa - 10 - 3
+idly sambar - 8 - 14
+pongal -8 - 2          o/p: 32 - 6
+
+So, Mapper o/ps are : (18,5), (15,3), (32,6)
+
+Reducer will:
+
+reducer knows max = 15
+It will sort the maps by key in desc: (32,6),(18,5),(15,3) : Final op: 65 in 14 min
+
+
+
+

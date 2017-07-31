@@ -1,0 +1,49 @@
+Glossory
+
+journal
+A binary transaction log used to bring the database into a valid state in the event of a hard shutdown. 
+Journaling is the process of writing the data first to the journal and then to the actual data files. 
+MongoDB enables journaling by default from version 2.0 onwards. 
+Journal files are pre-allocated and exist as files in the data directory. 
+
+MongoDB Storage Engines
+
+Storage engine is what manages how data is stored, both in memory and on disk. 
+MongoDB supports multiple storage engines, as different engines perform better for specific workloads. 
+WiredTiger is the default storage engine starting from MongoDB 3.2 (before 3.2,MMAPv1 was the default storage engine). 
+It is well-suited for most workloads.
+
+
+Speed and durability
+In  the  databases world,there  is always  an  inverse  relationship between write speed and durability. 
+For instance, suppose you write 100 records of 50 KB each  to  a  database  and  then  immediately  cut  the power on the server. 
+Will those records be recoverable when you bring the machine back online? The answer depends  on  your  database  system,  its  
+configuration, and  the  hardware  hosting  it.  Most  databases  enable good  durability  by  default.  
+
+For  some  applications,  like  storing  log  lines,  it might make more sense to have faster writes, even if you risk data loss. 
+The problem is that writing to a magnetic hard drive is slower than writing to RAM. Certain databases, such as Memcached, write 
+to RAM, which makes them extremely fast but completely volatile. On the other hand, few databases write to disk.
+Therefore, database designers often need to make compromises to provide the best balance of speed and durability.
+
+MongoDB tries to achive the speed by writing writes into memory instead of directly on to Disk. 
+
+
+
+You can configure MongoDBto fire-and-forget,sending off a write to the server without waiting for an acknowledgment. 
+You can also configure  MongoDB to  guarantee  that  a  write  has  gone  to  multiple  replicas  before
+considering  it  committed.  For  high-volume,  low-value  data  (like  clickstreams  and logs), fire-and-forget-style writes can be ideal. 
+
+For important data, a safe mode setting is  necessary.  It’s  important  to  know  that  in  MongoDB versions  older  than  2.0,  the
+unsafe fire-and-forget strategy was set as the default.
+
+Since MongoDBv2.0, journaling is enabled by default. With journaling, every write is flushed to the journal file every 100 ms. 
+If the server is ever shut down uncleanly (say, in a power outage), the journal will be used to ensure that MongoDB’s data files
+are restored to a consistent state when you restart the server. This is the safest way to
+run MongoDB.
+
+It’s  possible  to  run  the  server  without  journaling  as  a  way  of  increasing  performance for some write loads. The downside is that 
+the data files may be corrupted after an unclean shutdown. As a consequence, anyone planning to disable journaling should run with 
+replication, preferably to a second datacenter, to increase the likelihood that a pristine copy of the data will still exist even if there’s 
+a failure.
+MongoDBwas designed to give you options in the speed-durability tradeoff, but we highly recommend safe settings for essential data. 
+The topics of replication and durability are vast; you’ll see a detailed exploration of them in chapter 11.

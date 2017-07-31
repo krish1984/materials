@@ -1,0 +1,203 @@
+﻿NoSQL 
+NoSQL is a term used to refer to non-relational databases.Big data (VVV:Velocity,Varity,Volume) can not be handled by traditional SQL databases.
+Often Bigdata is typically in petabytes and unstructured...etc.
+Obviously, it is posing challenges to the traditional ways of storing and processing data, such as the RDBMS systems. 
+The term NOSQL was used initially to mean “do not use SQL if you want to scale.”Later this was redefined 
+to “not only SQL,”which means that in addition to SQL other complimentary database solutions exist .
+
+Structured Vs Unstructured
+Structured data is information, usually text displayed in titled columns and rows which can easily be ordered and processed by data mining 
+tools. This could be visualized as a perfectly organized filing cabinet where everything is identified, labeled and easy to access. 
+
+Unstructured data, 
+usually binary data, or text data without any specific format,is that which has no identifiable internal structure. 
+Unstructured data is raw and unorganized and organizations store it all. Ideally, all of this information would be converted into structured 
+data however, this would be costly and time consuming. Also, not all types of unstructured data can easily be converted into a structured 
+model. For example, an email holds information such as the time sent, subject, and sender (all uniform fields), but the content of the 
+message is not so easily broken down and categorized. This can introduce some compatibility issues with the structure of a relational 
+database system.In case you’re still not quite sure what we mean, here is a limited list of types of unstructured data:
+
+As we all know MySQL as a relation data store requires a strict schema for its data model, all tables should be created with columns defined. 
+Only then the data could be stored and queried using the SQL language. It somewhat complicates the development and deployment process as 
+every time the modification of data model is required, the schema should be changed first and then data migrated.
+
+Whereas, the MongoDB does not impose any schema restrcition on the documents being stored in the collection. It becomes the responsibility of 
+application to deal with that, the only thing MongoDB restricts is the supported data types. It significantly speeds up the development 
+process as MongoDB could be used right away to store JSON documents of any shape.
+
+
+
+Emails
+Word Processing Files
+PDF files
+Spreadsheets
+Digital Images
+Video
+Audio
+Social Media Posts
+Looking at the list, you may be wondering what these files have in common. The files listed above can be stored and managed without the 
+format of the file being understood by the system. This allows them to be stored in an unstructured fashion because the contents of the files are unorganized.
+
+
+SQL vs Mongo
+
+No Relationships - > Simpler,efficiant Queries
+NOSQL databases are primariliy designed for BIG unstructured DATA (BIGDATA) and analytics, not for OLTP and enterprise applications.
+SQL databases are primarily called as Relational Databases (RDBMS); whereas NoSQL databases like Mongo are primarily called as non-relational
+i.e each collection is isolated. This eliminates the need of joins while performing complex queries. Entire relational data can be 
+placed in a single collection and start querying. This simplifies your queries and gives greater performance.
+
+Flexible Schema
+SQL databases have predefined schema whereas NoSQL databases have flexible schema for unstructured data.You have some BIG unstructured data
+(data collected from logs, sensors, customer reviews i.e mostely textual and dont take fixed format and dont fit into fixed set of fields in 
+the DB tables and each record can take any form)
+You can just throw away  that data into the MongoDB and start querying it.They do not have any standard schema definitions which your data 
+needs to adhered to. This is really cool. In java, If you have a big object that has many relations in it say map with 50 keys.values, 
+list..etc. Entire document can be saved easiliy with out defining a schema, mappings..etc. In 5 min, You can start saving and querying 
+the records!!!
+
+Scalability & High Availability
+The biggest drawbacks of the RDBMS system are its difficulty in handling schema changes 
+and scaling issues as data increases. As data increases, the read read/write performance degrades. You face 
+scaling issues with RDBMS systems because they are mostly designed to scale up and not scale out.
+Like Mongo, both Oracle & MySQL databases support replicasets and sharding without compromizing on the ACID. 
+
+No ACID for gaining higher performance
+All SQL databases support transactions, but by compromizing performance. 
+For proving high level of concurrency, MongoDB does not support transactions.
+
+For high transactional based application: SQL databases are best fit for heavy duty transactional type applications, as it is more stable and 
+promises the atomicity as well as integrity of the data. While you can use NoSQL for transactions purpose, 
+it is still not comparable and stable enough in high load and for complex transactional applications.
+
+Readability
+Mongo collections are quite readable, because of its JSON formats.
+
+NoSQL database examples: MongoDB, BigTable, Redis, RavenDb, Cassandra,Hbase, Neo4j and CouchDb
+
+By seeing all the above you may draw few conclusions:
+
+MongoDB is unstructured, relationless, schemaless, transactionless database that provides great query performance, high concurency and 
+accept any unstructured data.
+
+Awesome explanation: https://www.linkedin.com/pulse/mysql-vs-mongodb-which-better-apurv-gupta
+----------------------------------------------------------------------
+
+
+Why MongoDB is NOT ACID compliant?
+It's actually not correct that MongoDB is not ACID-compliant. On the contrary, MongoDB is ACID-compilant at the document level.
+
+Any update to a single document is
+
+Atomic: it either fully completes or it does not
+Consistent: no reader will see a "partially applied" update
+Isolated: again, no reader will see a "dirty" read
+Durable: (with the appropriate write concern)
+What MongoDB doesn't have is transactions -- that is, multiple-document updates that can be rolled back and are ACID-compliant.
+
+Note that you can build transactions on top of the ACID-compliant updates to a single document, by using two-phase commit. But it is cumbersome.
+
+
+Ok, Why Mongo does not support multi document transactions?
+Transactions are absent in MongoDB for valid reasons. This is one of those things that make MongoDB faster.
+Having no transaction is a trade-off to allow MongoDB to be scalable.
+
+The purpose of a transaction is to make sure that the whole database stays consistent while multiple operations take place. 
+But in contrary to most relational databases, MongoDB isn't designed to run on a single host. It is designed to be set up as a cluster 
+of multiple shards where each shard is a replica-sets of multiple servers (optionally at different geographical locations).
+
+A transaction can potentially affect lots of hosts of the database. That means that the transaction would have to be synchronized between all 
+of these hosts. This would mean quite a lot of overhead and would scale very badly when increasing the size of the database by adding more 
+servers.
+
+What Mongo says about transaction support for multiple documents?
+In MongoDB, a write operation is atomic on the level of a single document, even if the operation modifies multiple embedded documents 
+within a single document.
+When a single write operation modifies multiple documents, the modification of each document is atomic, but the operation as a whole is not 
+atomic and other operations may update/delete those records. However, you can isolate a single write operation that affects multiple documents 
+using the $isolated operator. The $isolated isolation operator does not provide “all-or-nothing” atomicity for write operations.
+
+Ex:
+db.foo.update(
+    { status : "A" , $isolated : 1 },
+    { $inc : { count : 1 } },
+    { multi: true }
+)
+Without the $isolated operator, the multi-update operation will allow other operations to update/delete those matched records during the update.
+
+
+Living Without Transactions
+
+Transactions support ACID properties but although there are no transactions in MongoDB, we do have atomic operations. 
+Well, atomic operations means that when you work on a single document that that work will be completed before anyone else sees the document. 
+They'll see all the changes we made or none of them. And using atomic operations, you can often accomplish the same thing we would have 
+accomplished using transactions in a relational database. And the reason is that, in a relational database, we need to make changes across 
+multiple tables. Usually tables that need to be joined and so we want to do that all at once. And to do it, since there are multiple tables, 
+we'll have to begin a transaction and do all those updates and then end the transaction. But with MongoDB, we're going to embed the data, 
+since we're going to pre-join it in documents and they're these rich documents that have hierarchy. We can often accomplish the same thing. 
+For instance, in the blog example, if we wanted to make sure that we updated a blog post atomically, we can do that because we can update the 
+entire blog post at once. Where as if it were a bunch of relational tables, we'd probably have to open a transaction so that we can update 
+the post collection and comments collection.
+
+So what are our approaches that we can take in MongoDB to overcome a lack of transactions?
+
+restructure - restructure the code, so that we're working within a single document and taking advantage of the atomic operations that we offer within that document. And if we do that, then usually we're all set.
+implement in software - we can implement locking in software, by creating a critical section. We can build a test, test and set using find and modify. We can build semaphores, if needed. And in a way, that is the way the larger world works anyway. If we think about it, if one bank need to transfer money to another bank, they're not living in the same relational system. And they each have their own relational databases often. And they've to be able to coordinate that operation even though we cannot begin transaction and end transaction across those database systems, only within one system within one bank. So there's certainly ways in software to get around the problem.
+tolerate - the final approach, which often works in modern web apps and other applications that take in a tremendous amount of data is to just tolerate a bit of inconsistency. An example would, if we're talking about a friend feed in Facebook, it doesn't matter if everybody sees your wall update simultaneously. If okey, if one person's a few beats behind for a few seconds and they catch up. It often isn't critical in a lot of system designs that everything be kept perfectly consistent and that everyone have a perfectly consistent and the same view of the database. So we could simply tolerate a little bit of inconsistency that's somewhat temporary.
+Update, findAndModify, $addToSet (within an update) & $push (within an update) operations operate atomically within a single document.
+
+
+How to workaround transactions in Mongo?
+Bring it to the point: if transactional integrity is a must then don't use MongoDB but use only components in the system supporting 
+transactions. It is extremely hard to build something on top of component in order to provide ACID-similar functionality for non-ACID 
+compliant components. Depending on the individual usecases it may make sense to separate actions into transactional and non-transactional 
+actions in some way...
+
+ ANSI SQL, there are four standard isolation levels: Serializable, Repeatable Reads, Read Committed, and Read Uncommitted.
+ The default for many databases is Read Committed, which only guarantees that you won’t see data from a transition while that transaction is 
+ in progress. It does this by briefly acquiring locks during reads, while maintaining write locks until the transaction is committed. 
+ If you need to repeat the same read multiple times during a transaction, and want to be reasonably certain that it always returns the same 
+ value, you need to hold a read lock for the entire duration. This is automatically done for you when using the Repeatable Reads isolation 
+ level. We say “reasonably certain” for Repeatable Reads because of the possibility of “phantom reads”. A phantom read can occur when you 
+ perform a query using a where clause such as “WHERE Status = 1”. Those rows will be locked, but nothing prevents a new row matching the 
+ criteria from being added. The term "phantom" applies to the rows that appear the second time the query is executed. To be absolutely 
+ certain that two reads in the same transaction return the same data, you can use the Serializable isolation level. This uses “range-locks”, 
+ which prevent new rows from being added if they match a WHERE clause in an open transaction. Generally speaking, the higher your isolation 
+ level the worse your performance is due to lock contention. So to improve read performance, some databases also support Read Uncommitted.
+ This isolation level ignores locks (and is in fact called NOLOCK in SQL Server). As a result, it can perform dirty reads..
+ 
+ 
+-------------------------
+https://stackoverflow.com/questions/9711529/save-subset-of-mongodb-collection-to-another-collection
+
+Aggregation: Note that .aggregate() does not need a $group field. It is optional. Infact, you can just use in place of .find always.Difference?
+.find() - returns list.so, u can use .count()
+.aggregate() - returns . so to count u need to use: .aggregate()._batch.length
+
+group by state, city: means 1st group records by state, again group the grouped records by city.
+which is equivalent to order by price asc, ampm desc.
+db.zipcodes.find().sort({"state":1, "city":1})
+
+Data:
+_id: zip code: 50082
+area: somajiguda
+city: hyderabad
+state: TL
+population:7000
+
+_id: 50083
+area:hitechcity
+city:hyderabad
+state:TL
+population:5000
+------------------------------------
+https://stackoverflow.com/questions/32283964/mongodb-update-with-isolated
+https://docs.mongodb.com/manual/core/write-operations-atomicity/
+
+ Isolation does not occur on multiple documents, there is an $isolated ( http://docs.mongodb.org/manual/reference/operator/isolated/ ) operator but it is highly recommened not to use it, plus it isn't supported on sharded collections.
+
+http://findnerd.com/list/view/Two-Phase-commits-in-MongoDB/5965/
+http://keyangxiang.com/2016/03/17/Mongodb-two-phase-lock-example/
+
+mongodb remove key from document: https://docs.mongodb.com/manual/reference/operator/update/unset/
+mongodb remove element from array: https://docs.mongodb.com/manual/reference/operator/update/pull/

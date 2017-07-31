@@ -1,0 +1,278 @@
+Mongo operators:
+
+
+Query|Comparison operators:
+===========================
+$lt, $lte, $gt, $gte, $eq, $ne, $in, $nin, $size, $all, $elemMatch, $exists, $text, $regex.
+
+Examples: 
+db.sales.find({"quantity":{$exists:true}})
+
+db.sales.find({"quantity":{$gt:3}})
+
+db.sales.find({ "price" : { $in : [5,9, 6] }   })
+
+db.inventory.find( { qty: { $eq: 20 } } ) is equivalent to: db.inventory.find( { qty: 20 } )
+
+db.sales.find( { items: { $size: 2 } } ); //return docs that contain "items" array with size=2
+
+$all: given a subset of array, find all records whose array contain this subset.
+
+{ tags: { $all: [ "ssl" , "security" ] } } is equivalent to: { $and: [ { tags: "ssl" }, { tags: "security" } ] }
+
+$elemMatch: matches documents that contain an array field with at least one element that matches all the specified query criteria.
+Given the scores collection:
+
+{ _id: 1, results: [ 82, 85, 88 ] }
+{ _id: 2, results: [ 75, 88, 89 ] }
+The following query matches only those documents where the results array contains at least one element that is both > 80 and < 85.
+
+db.scores.find(
+   { results: { $elemMatch: { $gt: 80, $lt: 85 } } } //op: returns 1st document.
+)
+
+Find all documents in collection containing a specific text in any of its fields ($text ):
+$text performs a text search on the content of the fields, but the prerequisite is that all fields in the collection must be indexed on 
+text as follows:
+
+db.articles.createIndex( { subject: "text" } ) 
+
+The following operation, searches for the given text only the "subject" field contents as text index is created only on this.
+db.articles.find( { $text: { $search: "coffee" } } )
+
+This query returns documents that contain either bake or coffee or cake in the indexed subject field.
+
+db.articles.find( { $text: { $search: "bake coffee cake", $caseSensitive: true } } )
+
+This query returns documents that contain the phrase coffee shop:
+
+db.articles.find( { $text: { $search: "\"coffee shop\"" } } )
+
+
+Logical operators: 
+======================
+$and, $or, $not, $nor
+
+Examples:
+db.sales.find({ $and: [ {"quantity" :  {$gt:3} }, {"price" :  {$lt:8 } } ]   })
+db.sales.find({ $and: [ {"quantity" :  {$gt:3} }, {"quantity" :  {$lt:8 } } ]   }) 
+			is equivalent to:
+						db.sales.find({"quantity":{$gt:3, $lt:8}}) 
+						
+db.inventory.find( { price: { $not: { $gt: 1.99 } } } ) : price is less than or equal to 1.99 or it does not exist.
+
+{ $not: { $gt: 1.99 } } is different from the $lte. { $lte: 1.99 }: price field exists and its value is less than or equal to 1.99.
+
+db.inventory.find( { $nor: [ { price: 1.99 }, { sale: true } ]  } ) : neither nor!
+
+
+
+
+Update Operators:
+========================
+Field update operators: These operators are used with update() & findAndModify() methods.
+
+$inc	Increments the value of the field by the specified amount.
+$mul	Multiplies the value of the field by the specified amount.
+$rename	Renames a field.
+$setOnInsert	Sets the value of a field only if an update with $upsert=true results in an insert of a document. 
+$set	Sets the value of a field in a document.
+$unset	Removes the specified field from a document altogther no matter whether it is array or atotmic field or partial document.
+$min	Only updates the field if the specified value is less than the existing field value.
+$max	Only updates the field if the specified value is greater than the existing field value.
+
+
+db.products.update(
+   { sku: "abc123" },
+   { $inc: { quantity: -2, "metrics.orders": 1 } } //yes, u can increment more than one field at the same time.
+   { $mul: { quantity: 3, "metrics.orders": 5 } }
+)
+This multiplication wont happen, only inc happens, bcoz it doest work like pipe. In a single update, 
+you cant perform two operations on the same field.
+
+Rename the field nickname to alias, and the field cell to mobile:
+
+db.students.update( { _id: 1 }, { $rename: { 'nickname': 'alias', 'cell': 'mobile' } } )
+
+db.products.update(
+  { _id: 1 },
+  {
+     $set: { item: "apple" },
+     $setOnInsert: { defaultQty: 100 } //The defaultQty will be created only if the doc doest exist.
+  },
+  { upsert: true }
+)
+
+Consider a collection products with the following document:
+db.products.insert([
+{
+  _id: 100,
+  sku: "abc123",
+  quantity: 250,
+  instock: true,
+  reorder: false,
+  details: { model: "14Q2", make: "xyz" },
+  tags: [ "apparel", "clothing" ],
+  ratings: [ { by: "ijk", rating: 4 } ]
+}]);
+
+Update the value of the quantity field, details field, and the tags field: 
+
+db.products.update(
+   { _id: 100 },
+   { $set:
+      {
+        quantity: 500,
+        details: { model: "14Q3", make: "xyz" },
+        tags: [ "coats", "outerwear", "clothing" ],
+		"ratings.4.rating": 2  //as we have only 1 element in the array mongo inserts two null values at 1,2 indexes and then adds 
+		                         the value 2 at 4th index.
+      },
+	  $unset: { instock: "", reorder: "" }  //removes the fields "" is needed to just satisfy the json.
+   }
+)
+
+Set the value of lowScore=150, iff the new value is less/min than exisitng value:
+
+db.scores.update( { _id: 1 }, { $min: { lowScore: 150 } } ) //$max also works the same.
+
+Array update operators:
+$push: adds the given value at the end of an array.
+$pop: removes the first (if u pass -1 to it) or last element (if u pass 1 to it) of an array, without a condition.
+$pull: removes elements from an array based on the specified condition.
+$each: It is valid with only $addToSet and $push.It is used to denote multiple values.
+$slice:	Limits the number of array elements. Only valid with $push, $each.
+$position: specifies the location in the array at which to insert the new elements. Requires the use of the $each. 
+Without the $position, the $push appends the elements to the end of the array.
+$sort:Orders elements of the array. Requires the use of the $each.
+
+Examples:
+Add a single value to array($push):
+db.students.update(
+   { _id: 1 },
+   { $push: { scores: 89 } }
+)
+Add multiple values to array ($push with $each):
+db.students.update(
+   { name: "joe" },
+   { $push: { scores: { $each: [ 90, 92, 85 ] } } }
+)
+
+Given a students collection: { "_id" : 1, "scores" : [ 40, 50, 60 ] }
+The following operation adds new elements to the scores array, and then uses the $slice to trim the array to the last five (-5) elements:
+
+db.students.update(
+   { _id: 1 },
+   {
+     $push: {
+       scores: {
+         $each: [ 80, 78, 86 ],
+         $slice: -5
+       }
+     }
+   }
+)
+Op: { "_id" : 1, "scores" : [  50,  60,  80,  78,  86 ] }
+
+If you want to trim first 5 elements instead, use $slice:5
+
+Add elements at a specified index:
+db.students.update(
+   { _id: 1 },
+   {
+     $push: {
+        scores: {
+           $each: [ 20, 30 ],
+           $position: 2
+        }
+     }
+   }
+)
+
+Remove first or last element from an array ($pop) :
+Given the collection students: { _id: 1, scores: [ 8, 9, 10 ] }
+The operation db.students.update( { _id: 1 }, { $pop: { scores: -1 } } ) removes the first element(8) and 
+db.students.update( { _id: 1 }, { $pop: { scores: 1 } } ) removes the last element(10) from the scores array. 
+
+Add to an array iff the element does't already exist in the array ($addToSet) :
+
+Given an inventory collection: { _id: 2, item: "cable", tags: [ "electronics", "supplies" ] }
+The following operation adds only "camera" and "accessories" to the tags array since "electronics" already exists in the array:
+
+db.inventory.update(
+   { _id: 2 },
+   { $addToSet: { tags: { $each: [ "camera", "electronics", "accessories" ] } } }
+ )
+
+Remove one or more elements from an array based on condition($pull):
+
+Given the stores collection as follows :
+{
+   _id: 1,
+   fruits: [ "apples", "pears", "oranges", "grapes", "bananas" ],
+   vegetables: [ "carrots", "celery", "squash", "carrots" ],
+   prices: [ 3, 5, 6, 7, 7, 8 ]
+}
+The following operation, removes "apples" or "oranges" values from fruits array, and removes "carrots" from the vegetables array.
+ db.stores.update(
+    { },
+    { $pull: { fruits: { $in: [ "apples", "oranges" ] }, vegetables: "carrots" } },
+    { multi: true }
+)
+The following operation will remove all items from the prices array that are >= 6.
+
+db.stores.update( { _id: 1 }, { $pull: { prices: { $gte: 6 } } } ) 
+
+
+Update Array Using Slice Only
+
+students collection: { "_id" : 3, "scores" : [  89,  70,  100,  20 ] }
+To update the scores field with just the effects of the $slice modifier, specify the number of elements to $slice (e.g. -3) and an 
+empty array [] to $each, as in the following:
+
+db.students.update(
+  { _id: 3 },
+  {
+    $push: {
+      scores: {
+         $each: [ ],
+         $slice: -3
+      }
+    }
+  }
+)
+Op: { "_id" : 3, "scores" : [  70,  100,  20 ] }
+
+A students collection:
+
+{
+   "_id" : 5,
+   "quizzes" : [
+      { "wk": 1, "score" : 10 },
+      { "wk": 2, "score" : 8 },
+      { "wk": 3, "score" : 5 },
+      { "wk": 4, "score" : 6 }
+   ]
+}
+The following $push operation results in quizzes array to contain only the three highest scoring quizzes:
+
+db.students.update(
+   { _id: 5 },
+   {
+     $push: {
+       quizzes: {
+          $each: [ { wk: 5, score: 8 }, { wk: 6, score: 7 }, { wk: 7, score: 6 } ], //add multiple
+          $sort: { score: -1 }, //sort desc
+          $slice: 3 //slice to first three only
+       }
+     }
+   }
+)
+
+Aggregation Pipeline Operators:
+================================
+https://docs.mongodb.com/manual/reference/operator/aggregation/
+
+
+
+

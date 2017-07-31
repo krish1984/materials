@@ -1,0 +1,105 @@
+
+User management run commands: 
+------------------------------
+createUser:	Creates a new user.
+updateUser:	Updates a user’s data.
+createRole: creates a role that can be granted for a user.
+dropUser:	Removes a single user.
+dropAllUsersFromDatabase:	Deletes all users associated with a database.
+grantRolesToUser:	Grants a role and its privileges to a user.
+revokeRolesFromUser:	Removes a role from a user.
+usersInfo:	Returns information about the specified users.
+authenticate:	Starts an authenticated session using a username and password.
+logout:	Terminates the current authenticated session.
+
+createUser/updateUser:
+==============
+syntax:
+{ createUser/updateUser: "<name>",
+  pwd: "<cleartext password>",
+  digestPassword: <boolean> //When true, the mongod will create the hash of the user password; Defaults to true.
+  customData: { <any information> }, //This field can be used to store any data an admin wishes to associate with this particular user. 
+                                        For example, this could be the user’s full name or employee id.
+  roles: [
+    { role: "<role>", db: "<database>" } | "<role>",
+    ...
+  ],
+  writeConcern: { <write concern> }
+}
+
+Ex:
+db.getSiblingDB("products").runCommand( { createUser: "accountAdmin01",
+                                          pwd: "cleartext password",
+                                          customData: { employeeId: 12345 },
+                                          roles: [
+                                                   { role: "clusterAdmin", db: "admin" },
+                                                   { role: "readAnyDatabase", db: "admin" },
+                                                   "readWrite"
+                                                 ],
+                                          writeConcern: { w: "majority" , wtimeout: 5000 }
+                                       } )
+
+The above command gives accountAdmin01 the clusterAdmin and readAnyDatabase roles on the admin database and the readWrite role on 
+the products database:
+
+dropUser:
+===========
+db.runCommand( {
+   dropUser: "reportUser1",
+   writeConcern: { w: "majority", wtimeout: 5000 }
+} );
+
+Drop all users:
+=================
+db.runCommand( { dropAllUsersFromDatabase: 1, writeConcern: { w: "majority" } } )
+
+
+Create a role:
+==================
+use admin
+db.runCommand({ createRole: "myClusterwideAdmin",
+  privileges: [
+    { resource: { cluster: true }, actions: [ "addShard" ] },
+    { resource: { db: "config", collection: "" }, actions: [ "find", "update", "insert", "remove" ] },
+    { resource: { db: "users", collection: "usersCollection" }, actions: [ "update", "insert", "remove" ] },
+    { resource: { db: "", collection: "" }, actions: [ "find" ] }
+  ],
+  roles: [
+    { role: "read", db: "admin" }
+  ],
+  writeConcern: { w: "majority" , wtimeout: 5000 }
+})
+
+Grant roles to user:
+======================
+use products
+db.runCommand( { grantRolesToUser: "accountUser01",
+                 roles: [
+                    { role: "read", db: "stock"},
+                    "readWrite" //on products
+                 ],
+                 writeConcern: { w: "majority" , wtimeout: 2000 }
+             } )
+Above command gives accountUser01 the read role on the stock database and the readWrite role on the products.
+
+Revoke roles from user:
+======================
+use products
+db.runCommand( { revokeRolesFromUser: "accountUser01",
+                 roles: [
+                          { role: "read", db: "stock" },
+                          "readWrite"
+                 ],
+                 writeConcern: { w: "majority" }
+             } )
+Above command removes the two of the user’s roles: the read role on the stock database and the readWrite role on the products.
+
+View all the users info:
+======================
+db.runCommand(
+               {
+                 usersInfo:  { user: "Kari", db: "home" }, //The user(s) about whom to return information,user is required.
+                 showPrivileges: true,
+				 showCredentials:true
+               }
+)
