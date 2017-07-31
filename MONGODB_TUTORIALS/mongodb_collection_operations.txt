@@ -1,21 +1,479 @@
 collection methods:
 ====================
+insertOne,insertMany,insert,save : All return write result.
+updateOne,updateMany,update,replaceOne : All return write result, All take upsert flag.
+deleteOne,deleteMany,remove : All return write result.
+findOne,findOneAndUpdate,findOneAndReplace,findOneAndDelete,findAndModify : All return 1 document before modification.
+bulkWrite
+find : returns a cursor.
+
+insertOne:
+=================
+Inserts a document into a collection and returns the WriteResult.
+
+syantax:
+WriteResult db.collection.insertOne(
+   <document>,
+   { writeConcern: { w : "majority", wtimeout : 100 } }
+)
+op:
+{
+   "acknowledged" : true,
+   "insertedId" : ObjectId("56fc40f9d735c28df206d078")
+}
+
+insertMany :
+================
+syantax:
+
+BulkWriteResult db.collection.insertMany(
+	   [ <document 1> , <document 2>, ... ],
+	   {
+		  writeConcern: <document>,
+		  ordered: <boolean> //If true, perform an ordered insert of the documents in the array, and if an error occurs with one of documents, 
+	                           operation will return without processing the remaining documents in the array. If false, perform an unordered insert, 
+							  and if an error occurs with one of documents, continue processing the remaining documents in the array. default is true./
+	   }
+	)
+
+
+insert:
+========
+is a flexible method to use either of insert & insertMany.
+db.collection.insert(
+   <document or array of documents>,
+   {
+     writeConcern: <document>,
+     ordered: <boolean>    
+   }
+)
+Returns:	
+A WriteResult object for single inserts.
+A BulkWriteResult object for bulk inserts.
+
+updateOne & updateMany
+===========================
+Both updateOne, updateMany's synatx is same. Their behavior is declarative, they make sure that they either update one or many unlike update.
+WriteResult db.collection.updateOne|updateMany(
+	   <filter>,
+	   <update>, //the doc must contain atleast one update operator (ex: $set)
+	   {
+		 upsert: <boolean>,
+		 writeConcern: <document>
+	   }
+	)
+Ex:
+try {
+   db.restaurant.updateOne|updateMany(
+      { "name" : "Pizza Rat's Pizzaria" },
+      { $set: {"_id" : 4, "violations" : 7, "borough" : "Manhattan" } },
+      { upsert: true , w: "majority", wtimeout: 100 }
+   );
+} catch (e) {
+   print(e);
+}
+
+
+update
+============
+Modifies an existing document or documents in a collection and returns a WriteResult. The method either updates or 
+replace the existing document entirely (does not replace the _id value itself) if the <update> document contains only field:value expressions.
+
+Differnce between update & updateOne|updateMany?
+update allows any document for update field ( i.e with out update operators like $set, $unset, $remove..etc) and simply replaces the existing doc with 
+the given doc. where as, updateOne|updateMany throws error when the document provided in update field does't contain update operators.
+In otherwords, updateOne|updateMany gaurantees the saftey that they only update the document.
+
+Note that all update() operations for a sharded collection must include the shard key or the _id field in the query. 
+
+WriteResult db.collection.update(
+			   <filter>,
+			   <update>,
+			   {
+				 upsert: <boolean>,
+				 multi: <boolean>,
+				 writeConcern: <document>
+			   }
+			)
+Ex:
+The following operation will update only specific fields:
+
+db.books.update(
+   { _id: 1 },
+   {
+     $inc: { stock: 5 },
+     $set: {
+       item: "ABC123",
+       "info.publisher": "2222",
+       tags: [ "software" ],
+       "ratings.1": { by: "xyz", rating: 3 }
+     },
+	 $unset: { price: 1 } 
+   }
+)
+If u also set the upser=true and if the above document doest exist, then $set's contents will be used to derive the document that 
+needs to be inserted and the $unset will be ignored.
+
+
+But The following operation will replace the doc.
+
+db.people.update(
+   { name: "Andy" },
+   {
+      name: "Andy",
+      rating: 1,
+      score: 1
+   },
+   { upsert: true }
+)
+
+replaceOne:
+================
+Replaces a single document within the collection based on the filter and returns a WriteResult.
+
+synatx:
+WriteResult db.collection.replaceOne(
+   <filter>,
+   <replacement>, //must not contain update operators.
+   {
+     upsert: <boolean>, //insert the doc if not found and gives an auto generated id.
+     writeConcern: <document>
+   }
+)
+op:
+{
+   "acknowledged" : true,
+   "matchedCount" : 0,
+   "modifiedCount" : 0,
+   "upsertedId" : 4
+}
+
+findAndModify:
+==================
+Modifies and returns only a single document in a single call. If remove is specified the doc is deleted instead, and returns the deleted document.
+By default the returned document does not include the modifications made,to return the document with the modifications made, 
+use the new option.  When using findAndModify in a sharded environment, the query must contain the shard key.
+
+document db.collection.findAndModify({
+			query: <document>, //criteria for the modification
+			sort: <document>, //tells to modify/remove the first document in the given sort order.
+			remove: <boolean>, //removes the first doc
+			update: <document>, //takes an update document.
+			new: <boolean>, //When true, returns the modified document rather than the original. i.e if doc doesnt exist returns null.
+			fields: <document>, // A subset of fields to return.
+			upsert: <boolean>, //tells to insert the doc if no doc matches the given criteria.
+			writeConcern: <document>
+	});
+	
+Ex:
+db.people.findAndModify({
+    query: { name: "Pascal", state: "active", rating: 25 },
+    sort: { rating: 1 },
+    update: { $inc: { score: 1 } },
+    upsert: true,
+    new: true
+})
+With upsert&new defined, if no matching document exists, inserts a document and returns the newly inserted document. 
+
+save
+=======
+Inserts or Replaces (yes, replace not update) the given document and returns a WriteResult. 
+If doc doest already exists inserts else if it already exists replaces it. For insert, if the input document already contains _id uses it else autogenerates it.
+Unlike insert, save is safe to duplicate key errors. i.e running the save with a doc containing an _id field multiple times will not give an error.
+Analogous to saveOrUpdate in hibernate.
+
+syantax:
+
+WriteResult db.collection.save(
+   <document>,
+   {
+     writeConcern: <document>
+   }
+)
+
+Op: 
+Inserted 1 record(s) in 23ms  - (if insert)
+Updated 1 existing record(s) in 22ms - (if update)
+
+
+Differnce between insert, save, update
+============================================
+insert is not idempotent i.e it is subjected to duplicate key errors when u run the same insert second time where as save is not like that, save is idempotetnt.
+insert & save take only document where as update takes "filter cretieria on which it has to perform update|replace" + document.
+
+
+
+Differnce between findAndModify & update flavors(update,updateOne,updateMany):
+=============================================================================
+findAndModify returns you the updated document, where update flavors dont return(They return WriteResult which contains properties like, 
+Matched, upserted, modified).
+You can use update flavours, but you dont know what docs got modified. For that, you have to query again. If you query again, mean time some body else 
+might have updated it. 
+
+
+deleteOne|deleteMany:
+=============
+deleteOne deletes a single document (first document matching the given criteria) matching the given criteria.
+deleteMany deletes all documents matching the given criteria.
+For sharded collections, the filter must include the shard key or the _id field.
+
+syntax:
+WriteResult db.collection.deleteOne|deleteMany(
+   <filter>,
+   {
+      writeConcern: <document>
+   }
+)
+op:
+{
+    "acknowledged" : true,
+    "deletedCount" : 1.0
+}
+
+
+remove:
+=========
+Deletes the one or more documents matching the given criteria. 
+For sharded collections, the filter must include the shard key or the _id field.
+
+db.collection.remove(
+   <query>,
+   {
+     justOne: <boolean>, //To limit the deletion to just one document, set to true.
+     writeConcern: <document>
+   }
+)
+Ex:
+db.products.remove( { qty: { $gt: 20 } } )
+To remove all teh documents from the collection use : db.bios.remove( { } )
+
+To isolate the query, include $isolated: 1 as follows: db.products.remove( { qty: { $gt: 20 }, $isolated: 1 } )
+
+
 
 find:
 =========
 synatx:
-db.collection.find(query, projection):
+cursor db.collection.find(query, projection):
+
 Selects documents in a collection and returns a cursor to the selected documents.Executing db.collection.find() 
 in the mongo shell automatically iterates the cursor to display up to the first 20 documents. Type "it" to continue iteration.
-Ex:
 
-db.products.find( { qty: { $gt: 4 } } )
-                      .sort({"price":1})
-					  .readConcern("linearizable").maxTimeMS(10000)
-					  .count()
-					  .limit()
-https://docs.mongodb.com/manual/mongo/#executing-queries					  
-					  
+Ex:
+var cursor = db.products.find( { qty: { $gt: 4 } } , {"_id":1, "qty":1);
+cursor.sort({"price":1})
+cursor.readConcern("linearizable").maxTimeMS(10000)
+cursor.count()
+cursor.limit()
+                     
+findOne:
+==============
+document db.collection.findOne(query, projection)
+Returns one document that satisfies the specified query criteria. If multiple documents satisfy the query, 
+returns the first document according to the natural order which reflects the order of documents on the disk(insertion order).
+
+findOneAndDelete
+=====================
+Deletes a single document based on the filter and sort criteria and returns the deleted document.
+
+document db.collection.findOneAndDelete(
+   <filter>,
+   {
+     projection: <document>, //A subset of fields to return, To return all fields in the returned document, omit this parameter.
+     sort: <document>, //Specifies a sorting order for the documents matched by the filter.
+     maxTimeMS: <number>
+   }
+)
+
+findOneAndReplace & findOneAndUpdate
+========================
+findOneAndReplace/findOneAndUpdate replaces/updates the first matching document in the collection that matches the filter and return the 
+the replaced/updated document with its contents before replacing/updating. 
+If you need it to return the replaced/updated document instead, set returnNewDocument=true.
+
+In both cases, a sort parameter can be used to influence which document is modified. 
+Note that both findOneAndReplace, findOneAndUpdate share teh same syntax and behavior except for replacing & updating, the other diff is  
+findOneAndUpdate does't accept documents with out update operators.
+
+document db.collection.findOneAndReplace|findOneAndUpdate(
+   <filter>,
+   <replacement>|<update that contains atleast one update operator like $set>,
+   {
+     projection: <document>,
+     sort: <document>,
+     maxTimeMS: <number>,
+     upsert: <boolean>, // will create the doc if doest exist.
+     returnNewDocument: <boolean> //When true, returns the replacement document instead of the original document.
+   }
+)
+
+bulkWrite
+===========
+Provides bulk write operation functionality.
+
+syntax:
+db.collection.bulkWrite(
+   [
+      { insertOne : <document> },
+      { updateOne : <document> },
+      { updateMany : <document> },
+      { replaceOne : <document> },
+      { deleteOne : <document> },
+      { deleteMany : <document> }
+   ],
+    {
+      writeConcern : <document>,
+      ordered : <boolean>
+   }
+)
+Ex:
+db.collection.bulkWrite( [
+  { insertOne : { "document" : <document> } },
+  { updateOne :
+      {
+         "filter" : <document>,
+         "update" : <document>,
+         "upsert" : <boolean>
+      }
+   }
+] )
+
+db.collection.stats():
+========================
+Reports on the state of a collection. Provides a wrapper around the collStats.
+Ex:
+{
+    "ns" : "maitred.request",
+    "count" : 1337,
+    "size" : 3358832,
+    "avgObjSize" : 2512.21540762902,
+    "storageSize" : 10208698352.0,
+    "numExtents" : 24,
+    "nindexes" : 4,
+    "lastExtentSize" : 2146426864,
+    "paddingFactor" : 1.6450000000013,
+    "systemFlags" : 1,
+    "userFlags" : 1,
+    "totalIndexSize" : 621376,
+    "indexSizes" : {
+        "_id_" : 81760,
+        "headers.ESP-FILENAME_1" : 106288,
+        "createTime_1" : 65408,
+        "payload._id_1_modifiedTime_-1" : 367920
+    },
+    "ok" : 1.0
+}
+
+db.collection.dataSize():
+	Returns the size of the collection.
+
+db.collection.storageSize():
+	Reports the total size used by the collection data in bytes.
+
+db.collection.totalSize():
+	Reports the total size of a collection, including the size of all documents and all indexes on a collection.
+
+db.collection.totalIndexSize():
+	Reports the total size used by the indexes on a collection. 
+
+db.collection.stats():
+	Returns latency statistics for a collection.
+	data: 3358832
+	storage: 10208698352
+	total:   10209319728  
+
+	for more details google "mongodb data size vs storage size".
+
+db.collection.createIndex():
+	Builds an index on a collection. db.collection.ensureIndex() is deprecated. Use db.collection.createIndex() instead.
+	syntax:
+
+	db.collection.createIndex( 
+		 {"intfield":1|-1, "datefield":1|-1, "stringfield": "text"}, 
+		 
+		 {
+			"background" : <boolean>, //Builds the index in the background so that building an index does not block 
+									  other database activities. default value is false.
+			"unique" : <boolean>, // Creates a unique index so that the collection will not accept insertion of documents 
+									where the index key or keys match an existing value in the index. default value is false.
+			"name" :"string",    //name of the index. If unspecified, MongoDB generates an index name by concatenating the names of the indexed 
+								   fields and the sort order.
+			"sparse" <boolean>,
+			"expireAfterSeconds" :<long>
+		 
+		 }
+	):
+
+	Ex:
+	db.collection.createIndex( { orderDate: 1 } ): creates an ascending index on the field orderDate
+	db.collection.createIndex( { orderDate: 1, zipcode: -1 } ) : creates a compound index on the orderDate field (in ascending order) 
+	and the zipcode field (in descending order.)
+
+db.collection.dropIndex():
+	Removes a specified index on a collection.You cannot drop the default index on the _id field.
+	To drop the index orderDate_1, you can use either the index name:
+	db.collection.dropIndex( "orderDate_1" ) or you can use the index specification document { "orderDate" : 1 }:
+
+db.collection.dropIndexes():
+	Removes all indexes on a collection.
+
+db.collection.reIndex():
+	drops all indexes on a collection and recreates them. This operation may be expensive for collections that have a large amount of 
+	data and/or a large number of indexes.
+
+db.collection.getIndexes():
+	Returns an array of documents that describe the existing indexes on a collection.
+
+count:
+	return a count of the number of documents in a collection or matching a query.
+	syntax:
+	db.collection.count( 
+			<query_doc>, 
+			{
+				limit : "The maximum number of documents to count.",
+				skip  : "The number of documents to skip before counting.",
+				hint  : "An index name hint or specification for the query",
+				maxTimeMS	: "The maximum amount of time to allow the query to run.",
+				"readConcern" : ...
+			}
+	)
+
+db.collection.distinct():
+	Returns an array of documents that have distinct values for the specified field.
+	Ex: db.inventory.distinct( "dept" )
+
+
+db.collection.explain():
+	Returns information on the query execution of various methods.
+	synatx: 
+	db.collection.explain().<collection_method(...)>
+
+	Ex: 
+	db.products.explain().remove( { category: "apparel" }, { justOne: true } )
+
+
+db.collection.renameCollection():
+	Changes the name of a collection.
+
+db.collection.drop():
+	Removes the specified collection from the database.
+
+db.collection.getShardDistribution():
+	For collections in sharded clusters, db.collection.getShardDistribution() reports data of chunk distribution.
+
+db.collection.getShardVersion():
+	Internal diagnostic method for sharded cluster.
+
+db.collection.isCapped():
+	Reports if a collection is a capped collection.
+
+db.collection.aggregate()	
+	Provides access to the aggregation pipeline.
+db.collection.mapReduce()	
+	Performs map-reduce style data aggregation.
+
+
+	
 cursor methods:
 ==================
 cursor.forEach():
