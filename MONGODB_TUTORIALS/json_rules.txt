@@ -1,0 +1,44 @@
+Json rules:
+------------------
+1. What is an object?
+An object is a list of key value pairs seperated by , all together enclosed by {}. In json, anything that is inside a {} is an object. 
+Ex: { person: { name: "krishna",age:29 } }. In this case person value is an object, name value is just a value (i.e single atomic value).
+
+2. Diff between key-value pair and object?
+Key-value pair: name:krishna, object: {name:krishna}
+
+3. If a key's value is a key-value pair, then it must be enclosed in {}. Normally, a key-value pair not always need to be enclosed in {}, only when used as a value for a key.
+
+Ex: db.records.find( { "dob" : $exists:true )  -- > wrong, the $exists:true must be enclosed in curly brances, bcoz u r using it as a value.
+    db.records.find( { "dob" : {$exists:true}} ) --> right.
+	
+4. An object (takes form of {} ) accepts only key-value pairs not objects directly.
+
+{
+_id: {
+		{state: "$state"}, -------------> json error! An objeect accepts only key-value pairs, not objects itself.
+		{city: "$city" }                  
+     }
+}
+
+Following is valid:
+{
+_id: {
+		state: "$state", 
+		city: "$city"                   
+     }
+}
+
+
+5. An array accepts only objects. As u know from point1, an object is any no of key-value pairs enclosed in a {}.
+
+ db.zips.aggregate([ 
+	   $group: {_id:"$state"} ,  -----> wrong, an array accepts only objects, but not key value pairs. 
+	   $sort : {"_id":1}
+	]) 
+	
+	db.zips.aggregate([ 
+	  { $group: {_id:"$state"} } ,  -----> right!
+	  { $sort : {"_id":1} }
+	]) 
+6. A json can never have comma seperated values Ex: {_id: { "$state", "$city" } } is wrong!
