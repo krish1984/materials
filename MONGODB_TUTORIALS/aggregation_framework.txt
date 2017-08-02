@@ -594,3 +594,7 @@ Google "mongo queries on shared collections"
 Google "mongo queries on shared collections mapreduce and aggregate"
 Google "mongo mapreduce and aggregate"
 Google "mongo query pagination"
+
+Google "mongodb sharding query performance"
+
+Google "mongodb sharding aggregate group"
