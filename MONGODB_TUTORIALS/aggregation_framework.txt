@@ -1,7 +1,277 @@
+Aggregation Pipeline:
+===========================
+In mongo, the aggregation pipeline is a framework for data aggregation modeled on the concept of data processing pipelines. 
+Documents enter a multi-stage pipeline where each stage transforms the documents from one form to another.
+the input of first stage is all the collection records on the disk in the order they were stored.
+once the first stage is done, its output becomes input to the next stage...so on.
+and at the end of last stage you get your desired output.
 
+Note: 
+1. Pipeline stages do not need to produce one output document for every input document; e.g., some stages may generate new documents or 
+filter out documents. A particluar pipeline stage can appear multiple times in the pipeline.
+
+2. New temp fields created in previous stages can be reffered by next stages only using "$fieldNameCreatedInPrevStep". 
+3. Only the 1st stage can access the collection fields on the harddisk, all the subsequent stages only see what columns/fields previous stage has produced. 
+   it can not see the actual document.
+4. The aggregate array can have zero or more elements. When there are no stages, the input for the first stage is rendered in the natural order.
+i.e works just like find().
+
+syntax:
+
+db.collection.aggregate([
+	{ "pipeline_operator1" : {}}, 1st stage
+	{ "pipeline_operator2" : {}}, 2nd stage
+	....
+	{ "pipeline_operator1" : {}}, nth stage
+])
+
+
+pipeline stages:
+===================
+$match:
+	filters the collection based on the filter document passed to it and the matched/filtered documents are passed to the next stage.
+
+$addFields	
+	If you wan to add calculated values from a stage so that they can be used in the next stage in the pipeline or to show to the end user, then you can 
+	achive this with $addFields. Generally, if you wan to add new fields to the resultset then you have to use $group. 
+	But what if you dont want the grouping but instead wanto perform some calculation on the fields with in each document? $addFields is the way to go.
+	Given scores collection as follows...
+	{ _id: 1, student: "Maya", homework: [ 10, 5, 10 ], quiz: [ 10, 8 ], extraCredit: 0},
+	{ _id: 2, student: "Ryan", homework: [ 5, 6, 5 ], quiz: [ 8, 8 ],  extraCredit: 8}
+	
+	The following operation uses two $addFields stages to include three new fields in the output documents:
+
+	db.scores.aggregate( [
+	   {
+		 $addFields: { totalHomework: { $sum: "$homework" } , totalQuiz: { $sum: "$quiz" } }
+	   },
+	   {
+		 $addFields: { totalScore:{ $add: [ "$totalHomework", "$totalQuiz", "$extraCredit" ] } }
+	   }
+	] )
+	The operation returns the following documents:
+
+	{
+	  "_id" : 1, "student" : "Maya", "homework" : [ 10, 5, 10 ], "quiz" : [ 10, 8 ], "extraCredit" : 0,
+	  "totalHomework" : 25, "totalQuiz" : 18, "totalScore" : 43
+	}
+	
+$unwind	
+	splits an array field of each input document to output a document for each splitted element. Each output document replaces the array 
+	with the current splitted element value. For each input document, outputs n documents where n is the number of array elements.
+	
+$lookup	
+	Performs a left outer join to another collection in the same database to filter in documents from the “joined” collection for processing.
+	Given inventory document: { "_id" : 1, "item" : "ABC1", sizes: [ "S", "M", "L"] }
+	
+	db.inventory.aggregate( [ { $unwind : "$sizes" } ] ) outputs the following documents...
+			
+	{ "_id" : 1, "item" : "ABC1", "sizes" : "S" }
+	{ "_id" : 1, "item" : "ABC1", "sizes" : "M" }
+	{ "_id" : 1, "item" : "ABC1", "sizes" : "L" }
+
+
+$group	
+	Groups input documents by a specified identifier expression ( {"_id" : {groupkey-columns}, other accumulators }) and applies any accumulator expression(s), 
+	specified, to each formed group. 
+	Consumes all input documents and outputs one document (typically the 1st one in the group) per each distinct group. The output documents only contain the identifier field and, if specified, 
+	accumulated fields. So, next stages can access only the fields specified in the _id column & accumulators specified.
+	Group Accumulator Operators:  
+	  $sum:sums all the values of speicifed field in each group.
+	  $avg: calculates the average of specified field values by :(sums all the field values in each group)/no of documents in that group 
+	  $first: gets the 1st record's value of the specified value in each group
+	  $last: gets the last record's value of the specified value in each group.
+	  $max: finds the max of all values of the specified field in each group.
+	  $min: finds the min of all values of the specified field in each group.
+	  $push: creates an array of all values that result from applying an expression to each document in each group.
+	  $substract,$mul, $sqrt,$divide: 
+	  
+$sort	
+	sorts the input documents from its previous stage based on the sort keys specified to it.
+
+$project
+	Specifies the columns to picked which will be input to next/final stage.
+
+$skip	
+	Skips the first n documents where n is the specified skip number and passes the remaining documents unmodified to the pipeline.
+	Ex:
+	db.article.aggregate(
+		{ $sort: {"creationDate": 1}},
+		{ $skip : 5 }
+	);
+
+$limit	
+	Passes the first n documents unmodified to the next stage in the pipeline where n is the specified limit. synatx: { $limit: <positive integer> }
+
+$sortByCount	
+	Groups incoming documents based on the value of a specified expression, then computes the count of documents in each distinct group.
+	The $sortByCount stage is equivalent to the following $group + $sort sequence:
+	
+	{ $group: { _id: <expression>, count: { $sum: 1 } } },
+	{ $sort: { count: -1 } }
+	
+	Ex: Given the exhibits collection as follows:
+	{ "_id" : 1, "title" : "The Pillars of Society", "artist" : "Grosz", "year" : 1926, "tags" : [ "painting", "satire", "Expressionism", "caricature" ] }
+	{ "_id" : 2, "title" : "Melancholy III", "artist" : "Munch", "year" : 1902, "tags" : [ "woodcut", "Expressionism" ] }
+
+	the following query  shows the number of documents associated with each tag:
+	
+	db.exhibits.aggregate( [ { $unwind: "$tags" },  { $sortByCount: "$tags" } ] )
+
+$out	
+	writes the output into teh specified collection instead of displayng inline; To use the $out stage, it must be the last stage in the pipeline.
+
+$bucket	
+	We know that $group allows you to group documents based on a particular column key; documents having the same key(remember key must be same, then only group works)
+	are grouped together. But what if the keys are different but we want to group them based on the range. For ex: in emp_salaries collection, 
+	we want to group employee records into buckets based on their salarees. If salary < 10000 bucket1, If salary > 10000 & < 50000 bucket2..etc. $bucket is the option here.
+	$bucket categorizes incoming documents into groups, called buckets, based on a specified expression and bucket boundaries.
+	Ex:
+		$bucket: {
+		  groupBy: <expression>,
+		  boundaries: [ <lowerbound1>, <lowerbound2>, ... ],
+		  default: <literal>,
+		  output: {
+			 <output1>: { <$accumulator expression> },
+			 ...
+			 <outputN>: { <$accumulator expression> }
+		  }
+   }
+	where.....
+	groupBy: takes an expression to group documents by.
+	boundaries: takes an array of values that specify the boundaries for each bucket. This is used as an input to groupBy. 
+	The elements in the array must be in ascending order and all of the same type. 
+	
+	An array of [ 0, 5, 10 ] creates two buckets:
+	[0, 5) with inclusive lower bound 0 and exclusive upper bound 5.
+	[5, 10) with inclusive lower bound 5 and exclusive upper bound 10.
+	
+	default (optional)	specifies the _id of the default bucket, so that all the documents that dont fall into the given "boundaries" are stored here. If 
+	unspecified, each input document must resolve the groupBy expression to a value within one of the bucket ranges specified by boundaries or the operation throws an error.
+
+	output (optional) specifies the fields to include in the output documents in addition to the _id field. 
+	To specify the field to include, you must use accumulator expressions.
+
+	<outputfield1>: { <accumulator>: <expression1> },
+	...
+	<outputfieldN>: { <accumulator>: <expressionN> }
+	
+	
+	Ex: Given the artwork coolection as follows:
+	{ "_id" : 1, "title" : "The Pillars of Society", "price" : NumberDecimal("199.99") }
+	{ "_id" : 2, "title" : "Melancholy III",  "price" : NumberDecimal("280.00") }
+	{ "_id" : 3, "title" : "Dancer", "artist" : "Miro", "year" : 1925,
+		"price" : NumberDecimal("76.04") }
+	{ "_id" : 4, "title" : "The Great Wave off Kanagawa", "price" : NumberDecimal("167.30") }
+	{ "_id" : 5, "title" : "The Persistence of Memory",		"price" : NumberDecimal("483.00") }
+	{ "_id" : 6, "title" : "Composition VII", "price" : NumberDecimal("385.00") }
+	{ "_id" : 7, "title" : "The Scream", /* No price*/ }
+	{ "_id" : 8, "title" : "Blue Flower", "artist" : "O'Keefe", "year" : 1918, "price" : NumberDecimal("118.42") }
+	
+	db.artwork.aggregate( [
+	  {
+		$bucket: {
+		  groupBy: "$price",
+		  boundaries: [ 0, 200, 400 ],
+		  default: "Other",
+		  output: {
+			"count": { $sum: 1 }, //the expressions used in output are called for each document in the group.
+			"titles" : { $push: "$title" }
+		  }
+		}
+	  }
+	] )
+	
+$bucketAuto	
+	$bucket forces you to specify the category marks explicity. Instead, if we want categorize documents into a specific no of parts no matter what the values are..then
+	$bucketAuto is the way to go.
+	Ex:
+	db.artwork.aggregate( [
+	   {
+		 $bucketAuto: {
+			 groupBy: "$price",
+			 buckets: 4
+		 }
+	   }
+	] )
+	
+$facet	
+	allows us to create different views, each view containing again the regular aggregation operation.
+	synatx:
+	$facet:  { <view1_name>: [ <stage1>, <stage2>, ... ], <view2_name>: [ <stage1>, <stage2>, ... ], ...}
+	Ex:
+	db.artwork.aggregate( [
+			  {
+				$facet: {
+				  "categorizedByTags": [
+					{ $unwind: "$tags" },
+					{ $sortByCount: "$tags" }
+				  ],
+				  "categorizedByPrice": [
+					// Filter out documents without a price e.g., _id: 7
+					{ $match: { price: { $exists: 1 } } },
+					{
+					  $bucket: {
+						groupBy: "$price",
+						boundaries: [  0, 150, 200, 300, 400 ],
+						default: "Other",
+						output: {
+						  "count": { $sum: 1 },
+						  "titles": { $push: "$title" }
+						}
+					  }
+					}
+				  ],
+				  "categorizedByYears(Auto)": [
+					{
+					  $bucketAuto: {
+						groupBy: "$year",
+						buckets: 4
+					  }
+					}
+				  ]
+				}
+			  }
+			])
+			
+$redact	
+	When returning query results, hides parts of the document based on the roles(ACL) specified in each document.
+	Ex:
+	Given the following document (The document says that either "G" or "STLW" can access the data.)
+		{
+		  _id: 1,  title: "123 Department Report",
+		  tags: [ "G", "STLW" ],
+		  year: 2014,
+		  subsections: [
+			{
+			  subtitle: "Section 1: Overview",   tags: [ "SI", "G" ],  content:  "Section 1: This is the content of section 1."  },
+			{
+			  subtitle: "Section 2: Analysis", tags: [ "STLW" ],  content: "Section 2: This is the content of section 2."   },
+			{
+			  subtitle: "Section 3: Budgeting",  tags: [ "TK" ],   content: { text: "Section 3: This is the content of section3.",   tags: [ "HCS" ]
+			  }
+			}
+		  ]
+	}
+	Query:
+	var userAccess = [ "STLW", "G" ];
+	db.forecasts.aggregate(
+	   [
+		 { $match: { year: 2014 } },
+		 { $redact: {
+			$cond: {
+			   if: { $gt: [ { $size: { $setIntersection: [ "$tags", userAccess ] } }, 0 ] },
+			   then: "$$DESCEND",
+			   else: "$$PRUNE"
+			 }
+		   }
+		 }
+	   ]
+	);
+	
 Group:
 -------------
-Working set:
+consider the sales collection as follows:
 
 { "_id" : 1, "item" : "abc", "price" : 10, "quantity" : 2, "date" : ISODate("2014-01-01T08:00:00Z") }
 { "_id" : 2, "item" : "jkl", "price" : 20, "quantity" : 1, "date" : ISODate("2014-02-03T09:00:00Z") }
@@ -17,6 +287,9 @@ $last, $sum, $avg, $add, $substract or any combination of all of these.
 
 The "_id" property accepts either an atomic value (when ur groupng only single column)  or an object (when ur groupng more column names). 
 Note that, the column names u specify in the $group must start with "$".
+
+The other properties in the $group field, must specify only accumulator(aggregate) functions. It is same as SQL groupby; All the columns in the
+select query must be either the group keys, or aggregate values incase of non group keys.
 
 Ex: 
 db.zips.aggregate([ 	
@@ -72,7 +345,7 @@ As discussed above, the _id column will be the default column shown in the resul
 
 Just like in SQL, the order of the columns you specify in the _id property of $group doesnt matter. The DB will find what column becomes the 
 super set and what becomes its subset and so on for all columns specified in the groupby.
-In the above example, It groups records by state and taking each state's group/set of records it again performs a group based on city, i.e 
+In the above example, It groups records by state and taking each state's group/set of records it again performs another grouping based on city, i.e 
 performs the sub grouping as follows:
 AP VIJ
 AP GNT
@@ -162,3 +435,162 @@ db.sales.aggregate(
 Delete this 3rd record and re insert it again and run the above query, this time output will be 5th record's date : 2014-02-15T09:05:00Z.
 
 So,You can take it for granted that, in each group that mongo has built, the record that was inserted 1st will be the 1st one in the group.
+
+Some aggregation examples......
+=========================================
+
+Example with $group, $push & $addtoSet
+-------------------------------
+given sales collection:
+{ "_id" : 1, "item" : "abc", "price" : 10, "quantity" : 2, "date" : ISODate("2014-01-01T08:00:00Z") }
+{ "_id" : 2, "item" : "jkl", "price" : 20, "quantity" : 1, "date" : ISODate("2014-02-03T09:00:00Z") }
+....
+
+following operation finds all items sold & distinct items sold on each day of each year.
+db.sales.aggregate(
+   [
+     {
+       $group:
+         {
+           _id: { day: { $dayOfYear: "$date"}, year: { $year: "$date" } },
+           itemsSoldPerDay: { $push:  { item: "$item", quantity: "$quantity" } },
+		    distinctItemsSoldPerDay: { $addToSet: "$item" }
+         }
+     }
+   ]
+)
+
+Example with $unwind
+---------------------
+given requests collection:
+{
+    "_id" : 1, "messageType" : "MICROSITE", "createTime" :100,
+     "statusDetails" : [ 
+        { "status" : "COMPLETE", "label" : "ANALYZE", "date" : ISODate("2017-07-05T06:20:30.389Z") }, 
+        { "status" : "COMPLETE", "label" : "PUBLISH", "date" : ISODate("2017-07-05T06:20:30.733Z") }
+    ]
+},
+{
+    "_id" : 2, "messageType" : "TIMELINE", "createTime" :200,
+    "statusDetails" : [ 
+        { "status" : "COMPLETE", "label" : "ANALYZE", "date" : ISODate("2017-07-05T06:25:20.977Z") }, 
+        { "status" : "COMPLETE", "label" : "PUBLISH","date" : ISODate("2017-07-05T06:25:21.078Z") }
+    ]
+}
+
+the following query finds the average of time taken for each distinct message type that maitred has received and processed in the recent past:
+
+db.request.aggregate([
+		{
+			$match : {
+				createTime : { $gte : (new Date((new Date()).getTime() - (2 * 24 * 60 * 60 * 1000)))
+				}
+			}
+		}, 
+		{
+			$unwind : "$statusDetails" //referring field from 0th stage.
+		}, 
+		{
+			$group : {
+				"_id" : "$_id",
+				"analyzeDate" : { first : "$statusDetails.date" },
+				"publishDate" : { $last : "$statusDetails.date" },
+				"messageType" : { $first : "$messageType" }
+			}
+		}, 
+		{
+			$project : {
+				messageType : "$messageType",
+				"analyzeDate" : "$analyzeDate",
+				"publishDate" : "$publishDate",
+				difference : { $subtract : [ "$publishDate", "$analyzeDate" ] }
+			}
+		}, {
+			$group : {
+				"_id" : "$messageType",
+				"averageTime" : { $avg : "$difference" }
+			}
+		}, {
+			$sort : { averageTime : -1 }
+		} ]
+)
+
+Example groupby having count>  (i.e finding duplicates)
+------------------------------------------------
+db.getMongo().getDB("guid").guids.aggregate(
+{
+	$match : {"type" : "program"}   //where
+}, 
+{
+	$group : {
+		_id : "$data.programAssetId", //groupby
+		total : { $sum : 1 }
+	},
+
+}, 
+{
+	$match : {
+		total : { $gt : 1 } //having count >
+	}
+}, 
+{
+	$sort : { total : -1 } //orderby desc
+}
+
+);
+
+
+Example:
+Given states coolection: http://media.mongodb.org/zips.json?_ga=2.66058860.311435986.1501656777-1837154651.1484034106
+
+The following aggregation operation returns all states with total population greater than 10 million:
+
+db.zipcodes.aggregate( [
+   { $group: { _id: "$state", totalPop: { $sum: "$pop" } } },
+   { $match: { totalPop: { $gte: 10*1000*1000 } } }
+] )
+
+The following aggregation operation returns the average populations for cities in each state:
+
+db.zipcodes.aggregate( [
+   { $group: { _id: { state: "$state", city: "$city" }, pop: { $sum: "$pop" } } },
+   { $group: { _id: "$_id.state", avgCityPop: { $avg: "$pop" } } }
+] )
+
+The following aggregation operation returns the smallest and largest cities by population for each state:
+
+db.zipcodes.aggregate( [
+   { $group:
+      {
+        _id: { state: "$state", city: "$city" },
+        pop: { $sum: "$pop" }
+      }
+   },
+   { $sort: { pop: 1 } },
+   { $group:
+      {
+        _id : "$_id.state",
+        biggestCity:  { $last: "$_id.city" },
+        biggestPop:   { $last: "$pop" },
+        smallestCity: { $first: "$_id.city" },
+        smallestPop:  { $first: "$pop" }
+      }
+   },
+
+  // the following $project is optional, and
+  // modifies the output format.
+
+  { $project:
+    { _id: 0,
+      state: "$_id",
+      biggestCity:  { name: "$biggestCity",  pop: "$biggestPop" },
+      smallestCity: { name: "$smallestCity", pop: "$smallestPop" }
+    }
+  }
+] )
+
+
+Google "mongo queries on shared collections"
+Google "mongo queries on shared collections mapreduce and aggregate"
+Google "mongo mapreduce and aggregate"
+Google "mongo query pagination"
