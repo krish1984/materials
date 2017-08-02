@@ -1,0 +1,200 @@
+Aggregation operators used in aggrgation framework
+=====================================================
+
+Arthematic aggregation operators
+	$substract,$mul, $sqrt,$divide
+	
+Group Accumulator Operators:  
+==================================
+	$sum:sums all the values of speicifed field in each group.
+	$avg: calculates the average of specified field values by :(sums all the field values in each group)/no of documents in that group 
+	$first: gets the 1st record's value of the specified value in each group
+	$last: gets the last record's value of the specified value in each group.
+	$max: finds the max of all values of the specified field in each group.
+	$min: finds the min of all values of the specified field in each group.
+	$push: creates an array of all values that result from applying an expression to each document in each group.
+	  
+Array aggregation operators
+===========================
+$arrayElemAt:	
+	Returns the element at the specified array index.
+	Ex:
+	{ $arrayElemAt: [ [ 1, 2, 3 ], 0 ] }  -------> 1
+	{ $arrayElemAt: [ [ 1, 2, 3 ], -2 ] }  -------> 2
+	
+	db.users.aggregate([
+	   {
+		 $project:  { name: 1,first: { $arrayElemAt: [ "$favorites", 0 ] }, last: { $arrayElemAt: [ "$favorites", -1 ] }
+		  }
+	   }
+	])
+$concatArrays:	
+	Concatenates arrays to return the concatenated array.
+	Ex: { $concatArrays: [ [ "hello", " "], [ "world" ] ] }	[ "hello", " ", "world" ]
+
+$zip:
+	Transposes an array of input arrays so that the first element of the output array would be an array containing, the first element of the first 
+	input array, the first element of the second input array, etc.
+	For example, $zip would transform [ [ 1, 2, 3 ], [ "a", "b", "c" ] ] into [ [ 1, "a" ], [ 2, "b" ], [ 3, "c" ] ].
+	
+$filter:	
+	filters  array with given expression.
+	Ex:
+	db.sales.aggregate([
+	   {
+		  $project: { items: { $filter: {  input: "$items", as: "item", cond: { $gte: [ "$$item.price", 100 ] } } }
+		  }
+	   }
+	])
+
+$in:
+	Returns a boolean indicating whether a specified value is in an array. equal to list.contains() in java.
+	Ex:
+	{ $in: [ <expression>, <array expression> ]
+	{ $in: [ 2, [ 1, 2, 3 ] ] }	:true
+	{ $in: [ "abc", [ "xyz", "abc" ] ] }	:true
+	{ $in: [ "xy", [ "xyz", "abc" ] ] }	:false
+
+$indexOfArray:	
+	Ex: { $indexOfArray: [ <array>, <search expression>, <start>, <end> ] } //if start/end not specified, the array is searched from beginning to end.
+		{ $indexOfArray: [ [ "a", "abc" ], "a" ] } -------->	0
+		{ $indexOfArray: [ [ "a", "abc", "de", ["de"] ], ["de"] ] } --------> 3
+		{ $indexOfArray: [ [ 1, 2 ], 5 ] }	--------> -1
+
+$map:	
+	Applies the given expression to each element of an array and returns the array of resulting values in order.
+	synatx:
+	{ $map: { input: <expression>, as: <string>, in: <expression> } }
+	where...
+	input:	An expression that resolves to an array.
+	as:	Optional. A name for the variable that represents each individual element of the input array. If no name is specified, 
+	the variable name defaults to this.
+	in:	An expression that is applied to each element of the input array. The expression references each element individually with the variable name 
+	specified in as.
+	Ex: 
+	grades collection : { _id: 1, quizzes: [ 5, 6, 7 ] }
+	
+	The query "db.grades.aggregate( [ { $project: { adjustedGrades: { $map: { input: "$quizzes", 
+																			  as: "grade",  
+																			  in: { $add: [ "$$grade", 2 ] }  }} } } ] )" 
+	returns the following output:
+	
+	{ "_id" : 1, "adjustedGrades" : [ 7, 8, 9 ] }
+
+$reduce:	
+	Applies an expression to each element in an array and combines them into a single value.
+	synatx:
+	{
+		$reduce: {
+			input: <array>, //the array on which u want to perform reduce operation.
+			initialValue: <expression>,  //can be anything i.e empty string, empty array, some object..etc
+			in: <expression> //A valid expression that $reduce applies to each element in the input array in left-to-right order. 
+		}
+	}
+	Examples:
+	
+	$reduce: {
+		  input: ["a", "b", "c"], initialValue: "", in: { $concat : ["$$value", "$$this"] }
+	} 
+	output :	"abc"
+	
+	$reduce: {
+		  input: [ 1, 2, 3, 4 ],
+		  initialValue: { sum: 5, product: 2 },
+		  in: { sum: { $add : ["$$value.sum", "$$this"] }, product: { $multiply: [ "$$value.product", "$$this" ] }	  }
+	   }
+	output: { "sum" : 15, "product" : 48 }
+	
+	   
+$reverseArray:	
+	reverses the given element. Ex: { $reverseArray: <array expression> }
+
+$size:	
+	gives size of the array. Ex:{ $size: <array expression> }
+
+$slice:	
+	Returns a subset of an array. 
+	syantx: $slice: [ <array>, 
+					  <start_position:if not provided takes from 0>, 
+					  <no_of_items_toslice_from_given_position: if u geive -ve value returns  the last n elements in the array.> 
+					]
+	Ex: { $slice: [ [ 1, 2, 3 ], 1, 1 ] }----> [ 2 ]
+		{ $slice: [ [ 1, 2, 3 ], -2 ] }----> [ 2, 3 ]
+
+	  
+String aggregation operators
+----------------------------
+$concat:	
+	Concatenates any number of strings.
+	Ex: $concat: [ "$item", " - ", "$description" ]
+	$split:	Splits a string into substrings based on a delimiter. 
+	Ex:
+	{ $split: [ "June-15-2013", "-" ] }	---> [ "June", "15", "2013" ]
+	{ $split: [ "banana split", "a" ] }---->	[ "b", "n", "n", " split" ]
+	{ $split: [ "Hello World", " " ] }---->	[ "Hello", "World" ]
+
+$substr:	
+	Ex: { $substr: [ <string>, <start>, <length> ] }
+	 given the string "13Q1", $substr: [ "$quarter", 0, 2 ] ---> Q1
+
+$toLower & toUpper: 
+	Ex: 
+	$toLower : "mytext" 
+	{ $toLower: "$description" }
+	
+Comparison operators
+========================
+$eq, $ne, $gt, $gte, $lt, $lte.
+$cmp	
+	Returns 0 if the two values are equivalent, 1 if the first value is greater than the second, and -1 if the first value is less than the second.
+	Ex:
+	$cmp: [ "$qty", 250 ]
+
+		
+Variable Aggregation Operators
+==============================
+	$let	
+	Defines variables for use within the scope of a subexpression and returns the result of the subexpression.
+	Ex:
+	{ _id: 1, price: 10, tax: 0.50, applyDiscount: true }
+	{ _id: 2, price: 10, tax: 0.25, applyDiscount: false }
+	
+	Query:
+	db.sales.aggregate( [{
+      $project: {
+			 finalTotal: {
+				$let: {
+				   vars: { total: { $add: [ '$price', '$tax' ] }, discounted: { $cond: { if: '$applyDiscount', then: 0.9, else: 1 } }  },
+				   in: { $multiply: [ "$$total", "$$discounted" ] }
+				}
+			 }
+		  }
+	   }
+	] )
+	
+Date Aggregation Operators
+============================
+	$dayOfYear,$dayOfMonth,	$dayOfWeek,	$year,$month,$week,
+	$hour, $minute,	$second, $millisecond,	$dateToString	Returns the date as a formatted string.
+	Ex:
+	db.sales.aggregate(
+	   [
+		 {
+		   $project:
+			 {
+			   year: { $year: "$date" },
+			   month: { $month: "$date" },
+			   day: { $dayOfMonth: "$date" },
+			   hour: { $hour: "$date" },
+			   minutes: { $minute: "$date" },
+			   seconds: { $second: "$date" },
+			   milliseconds: { $millisecond: "$date" },
+			   dayOfYear: { $dayOfYear: "$date" },
+			   dayOfWeek: { $dayOfWeek: "$date" },
+			   week: { $week: "$date" }
+			 }
+		 }
+	   ]
+	)
+
+
