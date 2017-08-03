@@ -57,11 +57,8 @@ $addFields
 	}
 	
 $unwind	
-	splits an array field of each input document to output a document for each splitted element. Each output document replaces the array 
-	with the current splitted element value. For each input document, outputs n documents where n is the number of array elements.
+	splits an array field of each input document to output a document for each splitted element. Each output document replaces the array 	with the current splitted element value. For each input document, outputs n documents where n is the number of array elements.
 	
-$lookup	
-	Performs a left outer join to another collection in the same database to filter in documents from the “joined” collection for processing.
 	Given inventory document: { "_id" : 1, "item" : "ABC1", sizes: [ "S", "M", "L"] }
 	
 	db.inventory.aggregate( [ { $unwind : "$sizes" } ] ) outputs the following documents...
@@ -69,6 +66,19 @@ $lookup
 	{ "_id" : 1, "item" : "ABC1", "sizes" : "S" }
 	{ "_id" : 1, "item" : "ABC1", "sizes" : "M" }
 	{ "_id" : 1, "item" : "ABC1", "sizes" : "L" }
+	
+	Given a persons collection display name & the no of hobbies each person has?
+	db.person.aggregate([
+		{ $unwind: "$hobbies"},
+
+		{ $group : { "_id" : "$_id", "hobbies" : {$sum: 1}, "name" : {$first: "$name"} }},
+
+		{$sort: {noOfTemplates:-1}}
+	])
+	
+$lookup	
+	Performs a left outer join to another collection in the same database to filter in documents from the “joined” collection for processing.
+	
 
 
 $group	
