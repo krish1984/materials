@@ -37,3 +37,17 @@ http://insights.dice.com/2012/07/16/sql-vs-nosql-which-is-better/
 http://www.infoworld.com/article/2617405/nosql/7-hard-truths-about-the-nosql-revolution.html
 https://www.upwork.com/hiring/data/should-you-use-mongodb-a-look-at-the-leading-nosql-database/
 https://www.sitepoint.com/using-joins-in-mongodb-nosql-databases/
+
+
+Mapreduce vs aggregate
+https://www.javacodegeeks.com/2015/09/mongodb-mapreduce-tutorial.html
+http://helicaltech.com/mongodb-map-reduce/
+http://exceptionallyexceptionalexceptions.blogspot.in/2012/03/mongodb-mapreduce-scope-variables.html
+https://ajay555.wordpress.com/2014/04/19/mongodb-mapreduce-accessing-global-variables-in-map-and-reduce-functions-sent-using-scope/
+https://groups.google.com/forum/#!topic/mongodb-user/rYlBfqpybpY
+https://micropyramid.com/blog/group-vs-aggregation-framework-vs-mapreduce-in-mongodb/
+https://stackoverflow.com/questions/30391703/when-to-use-map-reduce-over-aggregation-pipeline-in-mongodb
+https://stackoverflow.com/questions/13908438/is-mongodb-aggregation-framework-faster-than-map-reduce
+https://sysdig.com/blog/mongodb-showdown-aggregate-vs-map-reduce/
+https://blog.serverdensity.com/map-reduce-and-mongodb/
+https://www.zorched.net/2010/10/04/mongodb-mapreduce-functions-for-grouping/
