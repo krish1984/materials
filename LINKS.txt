@@ -1,0 +1,17 @@
+https://stackoverflow.com/questions/5186707/why-is-mongodb-so-fast
+https://www.mongodb.com/nosql-explained
+https://www.mongodb.com/compare/mongodb-oracle
+https://www.mongodb.com/compare/mongodb-mysql
+https://softwareengineering.stackexchange.com/questions/54373/when-would-someone-use-mongodb-or-similar-over-a-relational-dbms
+https://docs.oracle.com/database/122/ADMIN/sharding-overview.htm#ADMIN-GUID-3D41F762-BE04-486D-8018-C7A210D809F9
+
+Oracle Partitioning
+http://allthingsoracle.com/partitioning-in-oracle/
+http://dwhlaureate.blogspot.com/2012/08/what-is-partition-in-oraclewhy-to-use.html
+https://docs.oracle.com/cd/B19306_01/server.102/b14220/partconc.htm
+https://docs.oracle.com/cd/B28359_01/server.111/b32024/partition.htm
+https://en.wikipedia.org/wiki/Partition_(database)
+http://insights.dice.com/2012/07/16/sql-vs-nosql-which-is-better/
+http://www.infoworld.com/article/2617405/nosql/7-hard-truths-about-the-nosql-revolution.html
+https://www.upwork.com/hiring/data/should-you-use-mongodb-a-look-at-the-leading-nosql-database/
+https://www.sitepoint.com/using-joins-in-mongodb-nosql-databases/
