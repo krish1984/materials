@@ -5,6 +5,27 @@ https://www.mongodb.com/compare/mongodb-mysql
 https://softwareengineering.stackexchange.com/questions/54373/when-would-someone-use-mongodb-or-similar-over-a-relational-dbms
 https://docs.oracle.com/database/122/ADMIN/sharding-overview.htm#ADMIN-GUID-3D41F762-BE04-486D-8018-C7A210D809F9
 https://www.edureka.co/blog/understanding-journaling-in-mongodb/
+http://techidiocy.com/types-write-concern-mongodb-performance-vs-persistence/
+https://docs.mongodb.com/manual/reference/operator/update/isolated/
+https://stackoverflow.com/questions/41245629/what-is-the-difference-between-isolated-and-findandmodify-in-mongodb
+https://dzone.com/articles/isolation-mongodb
+https://stackoverflow.com/questions/32283964/mongodb-update-with-isolated
+https://docs.mongodb.com/manual/core/write-operations-atomicity/
+
+ Isolation does not occur on multiple documents, there is an $isolated ( http://docs.mongodb.org/manual/reference/operator/isolated/ ) operator but it is highly recommened not to use it, plus it isn't supported on sharded collections.
+
+http://findnerd.com/list/view/Two-Phase-commits-in-MongoDB/5965/
+http://keyangxiang.com/2016/03/17/Mongodb-two-phase-lock-example/
+
+mongodb remove key from document: https://docs.mongodb.com/manual/reference/operator/update/unset/
+mongodb remove element from array: https://docs.mongodb.com/manual/reference/operator/update/pull/
+https://docs.mongodb.com/manual/core/write-operations-atomicity/
+https://docs.mongodb.com/manual/tutorial/perform-two-phase-commits/
+http://pauldone.blogspot.in/2014/04/mongoparallelaggsharded.html
+https://dzone.com/articles/what-write-concern-mongodb
+https://scalegrid.io/blog/understanding-durability-write-safety-in-mongodb/
+http://techidiocy.com/write-concern-mongodb-performance-comparison/
+https://shekhargulati.com/2011/12/08/how-mongodb-different-write-concern-values-affect-performance-on-a-single-node/
 
 Oracle Partitioning
 http://allthingsoracle.com/partitioning-in-oracle/
