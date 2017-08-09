@@ -1,0 +1,47 @@
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-linux/
+
+
+1. curl -O https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.7.tgz
+2.tar -zxvf mongodb-linux-x86_64-3.4.7.tgz
+3. Using winscp rename the extracted folder to "mongodb"
+4. Ensure the location of the binaries is in the PATH variable.
+ export PATH=/home/ec2-user/mongodb/bin:$PATH
+5. Bydefault mongo looks for the data directory at root/data/db. So create it: mkdir -p /data/db
+6. Set write permissions for the data directory so that mongo can read/write data into it.
+sudo chmod -R go+w /data/db: which will make the directory writable by everyone:
+sudo chown -R $USER /data/db: which will make the directory writable only by you 
+
+or combine 5&6 with : "sudo mkdir -p /data/db" and "sudo chown -R 'username' /data/db"
+
+7. Now from the "bin" directory type: mongod
+
+8. Now check if mongod is running using : ps -ax | grep mongo
+9. kill mongod say:  kill -9 <pid>
+
+
+10. Note that every time you logoff from putty, mongod will be terminated and also the path you exported is alos gone.
+
+9. To make sure mongod starts in background follow this text:
+
+The MongoDB daemon (mongod) has a command-line option to run the server in the background...: --fork
+This command-line option requires that you also specify a file to log messages to (since it can not use the current console). 
+An example of this command looks like:
+
+mongod --fork --logpath /var/log/mongod.log
+You could put this into an /etc/init.d/mongod bash script file. And then to have the service run at startup, create the standard 
+symbolic links (S## & K##) inside of /etc/rc#.d/. Here is a tutorial (http://www.yolinux.com/TUTORIALS/LinuxTutorialInitProcess.html)
+that explains this process in more detail. Scroll down to the section 
+titled "Init Script Activation". This also has the added benefit of being able to execute commands like...
+
+service mongod status
+service mongod start
+service mongod stop
+
+
+10. Connecting to the mongo using Robomongo from your Local machine:
+
+Make sure you create Inbound rule to allow any machine to connect to your machine by following the link:
+https://www.youtube.com/watch?v=JqLsqJfpuhw
+
+
+
