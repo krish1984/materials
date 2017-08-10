@@ -26,6 +26,7 @@ https://dzone.com/articles/what-write-concern-mongodb
 https://scalegrid.io/blog/understanding-durability-write-safety-in-mongodb/
 http://techidiocy.com/write-concern-mongodb-performance-comparison/
 https://shekhargulati.com/2011/12/08/how-mongodb-different-write-concern-values-affect-performance-on-a-single-node/
+https://stackoverflow.com/questions/45501535/sharding-in-mongodb-vs-oracle-mysql-sharding
 
 Oracle Partitioning
 http://allthingsoracle.com/partitioning-in-oracle/
@@ -38,6 +39,15 @@ http://www.infoworld.com/article/2617405/nosql/7-hard-truths-about-the-nosql-rev
 https://www.upwork.com/hiring/data/should-you-use-mongodb-a-look-at-the-leading-nosql-database/
 https://www.sitepoint.com/using-joins-in-mongodb-nosql-databases/
 
+
+Performance
+https://blog.serverdensity.com/mongodb-monitoring-keep-in-it-ram/
+https://shekhargulati.com/2012/01/10/how-working-set-affects-mongodb-performance/
+https://www.vividcortex.com/blog/how-to-tell-if-your-mongodb-server-is-correctly-sized-for-your-working-set
+https://dba.stackexchange.com/questions/137723/memory-usage-of-mongodb
+https://serverfault.com/questions/425834/how-to-get-the-mongodb-current-working-set-size
+https://emptysqua.re/blog/five-things/
+https://stackoverflow.com/questions/6453584/what-does-it-mean-to-fit-working-set-into-ram-for-mongodb
 
 Mapreduce vs aggregate
 https://www.javacodegeeks.com/2015/09/mongodb-mapreduce-tutorial.html
