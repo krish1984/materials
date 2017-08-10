@@ -53,6 +53,7 @@ https://dzone.com/articles/how-much-ram-should-you-have
 https://serverfault.com/questions/577653/why-is-mongod-not-using-all-available-ram
 https://docs.mongodb.com/manual/faq/diagnostics/#faq-memory
 https://dba.stackexchange.com/questions/19491/mongodb-ram-requirements
+https://docs.mongodb.com/manual/reference/command/touch/
 
 Mapreduce vs aggregate
 https://www.javacodegeeks.com/2015/09/mongodb-mapreduce-tutorial.html
