@@ -39,8 +39,12 @@ http://www.infoworld.com/article/2617405/nosql/7-hard-truths-about-the-nosql-rev
 https://www.upwork.com/hiring/data/should-you-use-mongodb-a-look-at-the-leading-nosql-database/
 https://www.sitepoint.com/using-joins-in-mongodb-nosql-databases/
 
+https://www.quora.com/What-are-the-limitations-of-a-MongoDB
 
 Performance
+https://docs.mongodb.com/manual/reference/limits/
+https://www.mkyong.com/mongodb/mongodb-sort-exceeded-memory-limit-of-104857600-bytes/
+https://stackoverflow.com/questions/43472561/mongodb-sort-the-result-after-limit
 https://blog.serverdensity.com/mongodb-monitoring-keep-in-it-ram/
 https://shekhargulati.com/2012/01/10/how-working-set-affects-mongodb-performance/
 https://www.vividcortex.com/blog/how-to-tell-if-your-mongodb-server-is-correctly-sized-for-your-working-set
