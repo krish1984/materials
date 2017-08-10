@@ -48,6 +48,11 @@ https://dba.stackexchange.com/questions/137723/memory-usage-of-mongodb
 https://serverfault.com/questions/425834/how-to-get-the-mongodb-current-working-set-size
 https://emptysqua.re/blog/five-things/
 https://stackoverflow.com/questions/6453584/what-does-it-mean-to-fit-working-set-into-ram-for-mongodb
+https://docs.mongodb.com/manual/faq/diagnostics/#faq-memory
+https://dzone.com/articles/how-much-ram-should-you-have
+https://serverfault.com/questions/577653/why-is-mongod-not-using-all-available-ram
+https://docs.mongodb.com/manual/faq/diagnostics/#faq-memory
+https://dba.stackexchange.com/questions/19491/mongodb-ram-requirements
 
 Mapreduce vs aggregate
 https://www.javacodegeeks.com/2015/09/mongodb-mapreduce-tutorial.html
