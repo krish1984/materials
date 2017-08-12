@@ -25,6 +25,8 @@ Developers do not have to mention each and every configuration detail  like in A
 When a Maven project is created, Maven creates default project structure. Developer is only required to place files accordingly and 
 he/she need not to define any configuration in pom.xml.
 
+http://books.sonatype.com/mvnref-book/reference/lifecycle-sect-structure.html
+
 Example maven project structure:
 ----------------------------
 Item	        Default
