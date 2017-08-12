@@ -61,6 +61,7 @@ https://dba.stackexchange.com/questions/19491/mongodb-ram-requirements
 https://docs.mongodb.com/manual/reference/command/touch/
 
 Mapreduce vs aggregate
+https://docs.mongodb.com/v3.4/core/map-reduce-sharded-collections/
 https://runnable.com/blog/pipelines-vs-map-reduce-to-speed-up-data-aggregation-in-mongodb
 More detailed answer: I am using the aggregation framework in anger on a large project (hasn't released yet, and I can't go into any specifics) that is handling lots of data. Interestingly, a previous prototype of the project (somewhat different functionality, written in a different way by a completely different team) did use map reduce for data transformation purposes.
 
