@@ -1,6 +1,7 @@
 https://stackoverflow.com/questions/5186707/why-is-mongodb-so-fast
 https://www.mongodb.com/nosql-explained
 https://www.mongodb.com/compare/mongodb-oracle
+https://dzone.com/articles/when-use-mongodb-rather-mysql
 https://www.mongodb.com/compare/mongodb-mysql
 https://softwareengineering.stackexchange.com/questions/54373/when-would-someone-use-mongodb-or-similar-over-a-relational-dbms
 https://docs.oracle.com/database/122/ADMIN/sharding-overview.htm#ADMIN-GUID-3D41F762-BE04-486D-8018-C7A210D809F9
