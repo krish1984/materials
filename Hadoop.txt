@@ -1,3 +1,4 @@
+http://www.networkworld.com/article/3024812/big-data-business-intelligence/the-top-5-hadoop-distributions-according-to-forrester.html
 https://www.dezyre.com/article/top-6-hadoop-vendors-providing-big-data-solutions-in-open-data-platform/93
 http://www.zdnet.com/article/hortonworks-comes-to-the-amazon-aws-cloud/
 http://blogs.perficient.com/integrate/2016/05/19/two-choices-1-amazon-emr-or-2-hadoop-on-ec2/
