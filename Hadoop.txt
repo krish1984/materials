@@ -3,6 +3,7 @@ https://www.dezyre.com/article/top-6-hadoop-vendors-providing-big-data-solutions
 http://www.zdnet.com/article/hortonworks-comes-to-the-amazon-aws-cloud/
 http://blogs.perficient.com/integrate/2016/05/19/two-choices-1-amazon-emr-or-2-hadoop-on-ec2/
 https://www.linkedin.com/pulse/big-data-who-best-hadoop-vendors-2017-bernard-marr
+http://community.simplilearn.com/threads/on-demand-hadoop-ecosystem-component.1545/
 
 Amazon Elastic Map Reduce (EMR) is the leader in Hadoop on demand.
 EMR has an Amazon distribution of Hadoop.
