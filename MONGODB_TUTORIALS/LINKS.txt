@@ -1,3 +1,15 @@
+BigData Technologies:Hadoop, MapReduce, Pig, Hive, Hive QL, Spark, Spark SQL, Spark Streaming, Flume, YARN, Sqoop, Oozie, Impala, Zookeeper.
+
+NoSQL Databases: HBase,Hive,H2,Cassandra,MongoDB,Neo4j
+
+Languages: Core Java, SCALA
+
+Analytical skills
+
+Logical understanding
+
+*Good to have : Machine learning,Graphics,RDD
+
 https://stackoverflow.com/questions/5186707/why-is-mongodb-so-fast
 https://www.mongodb.com/nosql-explained
 https://www.mongodb.com/compare/mongodb-oracle
