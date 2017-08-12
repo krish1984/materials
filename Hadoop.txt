@@ -23,3 +23,10 @@ Google Cloud
 There are a few other companies such as Treasure Data, Qubole, Altiscale, IBM/Softlayer, Rackspace and so on that run Hadoop as a service.
 
 https://hortonworks.com/tutorial/learning-the-ropes-of-the-hortonworks-sandbox/
+
+
+https://www.javatpoint.com/hadoop-tutorial
+
+https://www.dezyre.com/hadoop-tutorial/hadoop-sqoop-tutorial
+https://www.dezyre.com/hadoop-tutorial/hadoop-mapreduce-tutorial-
+https://www.dezyre.com/hadoop-tutorial/hadoop-mapreduce-wordcount-tutorial
