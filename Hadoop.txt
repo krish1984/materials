@@ -1,0 +1,21 @@
+https://www.dezyre.com/article/top-6-hadoop-vendors-providing-big-data-solutions-in-open-data-platform/93
+http://www.zdnet.com/article/hortonworks-comes-to-the-amazon-aws-cloud/
+http://blogs.perficient.com/integrate/2016/05/19/two-choices-1-amazon-emr-or-2-hadoop-on-ec2/
+https://www.linkedin.com/pulse/big-data-who-best-hadoop-vendors-2017-bernard-marr
+
+Amazon Elastic Map Reduce (EMR) is the leader in Hadoop on demand.
+EMR has an Amazon distribution of Hadoop.
+EMR supports the MapR distribution.
+
+Google Cloud supports:
+Google Cloud Dataproc
+Hortonworks
+MapR
+
+Microsoft Azure supports their own HDInsights
+
+Cloudera supports [Start with Cloudera then go to server provider]
+AWS
+Google Cloud
+
+There are a few other companies such as Treasure Data, Qubole, Altiscale, IBM/Softlayer, Rackspace and so on that run Hadoop as a service.
