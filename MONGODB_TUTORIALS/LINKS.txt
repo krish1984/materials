@@ -60,6 +60,21 @@ https://dba.stackexchange.com/questions/19491/mongodb-ram-requirements
 https://docs.mongodb.com/manual/reference/command/touch/
 
 Mapreduce vs aggregate
+https://runnable.com/blog/pipelines-vs-map-reduce-to-speed-up-data-aggregation-in-mongodb
+More detailed answer: I am using the aggregation framework in anger on a large project (hasn't released yet, and I can't go into any specifics) that is handling lots of data. Interestingly, a previous prototype of the project (somewhat different functionality, written in a different way by a completely different team) did use map reduce for data transformation purposes.
+
+Performance wise, the aggregation framework won hands down. There's a lot of reasons why, but here are (IMO) the three biggest reasons:
+
+1. With map reduce, you generally output to a collection (often a temporary collection). The aggregation framework is much better suited to return data directly to a calling library when that's what you actually want to do.
+
+2. Map reduce is single threaded, per-server. A mongod instance can only run one map reduce query at a time, whereas the aggregation framework can run multiple operations at once.
+
+3. The aggregation framework can use indexes to reduce the cost of operations where you're only interested in a subset of the contents of a collection.
+
+For us. the combination of these three gave the aggregation framework a huge performance advantage of map reduce for similar (but not identical) problems.
+
+In your case, things might be different, but I'd go so far as to say that the aggregation framework should be everybody's default choice for batch/data processing jobs on MongoDB (well, either AF or application code, I suppose). The list of things that map reduce is best at on this platform is quite small, and getting smaller all of the time.
+
 https://www.javacodegeeks.com/2015/09/mongodb-mapreduce-tutorial.html
 http://helicaltech.com/mongodb-map-reduce/
 http://exceptionallyexceptionalexceptions.blogspot.in/2012/03/mongodb-mapreduce-scope-variables.html
