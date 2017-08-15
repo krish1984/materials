@@ -20,3 +20,4 @@ http://apache-spark-user-list.1001560.n3.nabble.com/Configuring-shuffle-write-di
 http://analyticsindiamag.com/shuffle-operation-hadoop-spark/
 https://medium.com/@foundev/you-won-t-believe-how-spark-shuffling-will-probably-bite-you-also-windowing-e39d07bf754e
 http://analyticsindiamag.com/shuffle-operation-hadoop-spark/
+https://github.com/JerryLead/SparkInternals/edit/master/markdown/english/4-shuffleDetails.md
