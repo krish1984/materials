@@ -1,6 +1,11 @@
 https://mapr.com/blog/apache-spark-vs-mapreduce-whiteboard-walkthrough/#.VYhGIPlViko
+https://www.dezyre.com/article/how-data-partitioning-in-spark-helps-achieve-more-parallelism/297
+https://spark.apache.org/docs/0.6.2/scala-programming-guide.html
+https://spark.apache.org/docs/latest/rdd-programming-guide.html#using-the-shell
+https://www.edureka.co/blog/demystifying-partitioning-in-spark
 https://mapr.com/blog/getting-started-spark-web-ui/
 https://databricks.com/blog/2015/06/22/understanding-your-spark-application-through-visualization.html
+https://www.youtube.com/watch?v=VQOKk9jJGcw&index=5&list=PL-x35fyliRwif48cPXQ1nFM85_7e200Jp
 https://spark.apache.org/docs/latest/monitoring.html
 http://dev.sortable.com/spark-repartition/
 https://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-1/
