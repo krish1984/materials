@@ -12,3 +12,8 @@ http://dev.sortable.com/spark-repartition/
 https://blog.cloudera.com/blog/2015/03/how-to-tune-your-apache-spark-jobs-part-1/
 https://spark.apache.org/docs/latest/rdd-programming-guide.html#using-the-shell
 https://www.youtube.com/watch?v=NXp3oJHNM7E
+https://stackoverflow.com/questions/35479876/why-does-spark-save-map-phase-output-to-local-disk
+https://stackoverflow.com/questions/32210011/spark-difference-between-shuffle-write-shuffle-spill-memory-shuffle-spill
+https://stackoverflow.com/questions/41661849/spill-to-disk-and-shuffle-write-spark
+http://apache-spark-developers-list.1001551.n3.nabble.com/Eliminating-shuffle-write-and-spill-disk-IO-reads-writes-in-Spark-td16955.html
+http://apache-spark-user-list.1001560.n3.nabble.com/Configuring-shuffle-write-directory-td3032.html
