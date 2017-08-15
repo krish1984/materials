@@ -1,5 +1,6 @@
 https://mapr.com/blog/apache-spark-vs-mapreduce-whiteboard-walkthrough/#.VYhGIPlViko
 https://www.dezyre.com/article/how-data-partitioning-in-spark-helps-achieve-more-parallelism/297
+https://databricks.gitbooks.io/databricks-spark-knowledge-base/content/best_practices/prefer_reducebykey_over_groupbykey.html
 https://spark.apache.org/docs/0.6.2/scala-programming-guide.html
 https://spark.apache.org/docs/latest/rdd-programming-guide.html#using-the-shell
 https://www.edureka.co/blog/demystifying-partitioning-in-spark
