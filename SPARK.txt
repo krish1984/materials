@@ -17,3 +17,6 @@ https://stackoverflow.com/questions/32210011/spark-difference-between-shuffle-wr
 https://stackoverflow.com/questions/41661849/spill-to-disk-and-shuffle-write-spark
 http://apache-spark-developers-list.1001551.n3.nabble.com/Eliminating-shuffle-write-and-spill-disk-IO-reads-writes-in-Spark-td16955.html
 http://apache-spark-user-list.1001560.n3.nabble.com/Configuring-shuffle-write-directory-td3032.html
+http://analyticsindiamag.com/shuffle-operation-hadoop-spark/
+https://medium.com/@foundev/you-won-t-believe-how-spark-shuffling-will-probably-bite-you-also-windowing-e39d07bf754e
+http://analyticsindiamag.com/shuffle-operation-hadoop-spark/
