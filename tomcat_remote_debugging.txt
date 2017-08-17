@@ -1,0 +1,14 @@
+In Tomcat:
+create bin/setenv.bat with the following setting:
+set CATALINA_OPTS="-agentlib:jdwp=transport=dt_socket,address=1043,server=y,suspend=n"
+
+Tomcat atomatically picks this when starting the server using startup.bat
+
+In eclipse:
+socket attach
+locahost
+1043
+check Allow termination of remote VM
+
+More info:
+http://blog.trifork.com/2014/07/14/how-to-remotely-debug-application-running-on-tomcat-from-within-intellij-idea/
