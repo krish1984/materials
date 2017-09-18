@@ -1,3 +1,8 @@
+http://tutorials.jenkov.com/oauth2/authorization-code-request-response.html
+https://aaronparecki.com/oauth-2-simplified/
+http://www.bubblecode.net/en/2016/01/22/understanding-oauth2/
+https://spring.io/guides/tutorials/spring-boot-oauth2/
+
 What is OAuth2?
 It is a protocol for conveying ur authorization. It is a standard. U r conveying ur authorization in the form a token.
 OAuth is not an authentication scheme, its an authorization mechsihm provided to users in the form of tokens for a short period of time.
