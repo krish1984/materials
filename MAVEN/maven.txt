@@ -450,7 +450,38 @@ dependencyManagement tag will not add any dependency in the child projects. It i
 
 Managed Dependencies:
 -----------------------
-Dependencies declared using the dependencyManagement tag in the parent POM, are known as managed dependencies. When, child declares a 
+Till now we are adding any dependency into our projects, using a <dependency> tag. But what if our project has multiple modules and all modules need the same dependency? Do we go about adding the new dependency in all child projects? If the project grows it becomes very likely that such an artifact will be used by several modules. In most cases it’s not just a good idea but also necessary to make sure that the same version is used in all cases.
+
+Maven therefore provides a mechanism to manage dependencies, i.e. to declare the version to be used for a specific artifact either in a 1. top level pom.xml file
+2. or in a pom.xml file which acts as a BOM (bill of materials):
+<project ...>
+...
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.buschmais.jaxbfx</groupId>
+        <artifactId>jaxbfx</artifactId>
+        <version>1.1.0</version>
+      </dependency>
+    <dependencies>
+  <dependencyManagement>
+...
+</project>
+The dependency can now be referenced without the version, this information will be taken from the dependency management section:
+
+<project...>
+...
+  <dependencies>
+    <dependency>
+      <groupId>com.buschmais.jaxbfx</groupId>
+      <artifactId>jaxbfx</artifactId>
+    </dependency>
+  <dependencies>
+...
+</project>
+There’s a further benefit of this approach: It becomes very easy to change the version of a required library even for large multi-module projects. To achieve this it’s necessary that all used dependencies are managed and no dependency with an explicit version is declared.
+
+In a nutshell only those dependencies, declared using the dependencyManagement tag in the parent POM, are known as managed dependencies. When, child declares a 
 diff version for the same dependency defined by dependencyManagement tag in its parent, then child POM gets warning saying that 
 "Overriding managed version 3.2.2 for commons-collections"
 Ex:
