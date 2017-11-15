@@ -57,14 +57,16 @@ how to handle that?
 
 Maven build life cycles & phases
 ------------------------------------
-Maven has 3 built-in build lifecycles: default, clean and site. The default lifecycle handles your project deployment, 
-the clean lifecycle handles project cleaning, while the site lifecycle handles the creation of your project's site documentation.
+Maven has 3 built-in build lifecycles: clean, default and site. The clean lifecycle handles project cleaning, default lifecycle handles your project deployment, while the site lifecycle handles the creation of your project's site documentation.
 
 Each lifecycle is made up of build phases and each build Phase is Made Up of Plugin Goals.
+Ex: A person's life cycle has phases (child hood, teenage, middle age, old age), in each phase he has multiple goals for that phase in his life and that phase is executed by a plugin.
+
 A plugin goal represents a specific task (finer than a build phase) which contributes to the building of a project. It may be bound to 
 zero or more build phases. if a goal is bound to one or more build phases, that goal will be called in all those phases.
 A goal not bound to any build phase could be executed outside of the build lifecycle by direct invocation. 
 The order of execution depends on the order in which the goal(s) and the build phase(s) are invoked. 
+
 For example: mvn clean dependency:copy-dependencies package
 clean phase is invoked 1st, then copy-dependencies goal of dependency plugin is onvoked, finally package goal.
 
