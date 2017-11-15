@@ -1,23 +1,22 @@
 What maven offers you?
-Dependency management:No more manual management of dependencies and guessing versions.Easier dependency management. just add a dependency, u r done!, maven will also download the sources if you say so.
+Dependency management:No more manual management of dependencies and resolving transitive dependencies and versions when using a libary.Easier dependency management. just add a dependency, u r done!, maven will also download the jars & even sources if you say so.
 Build standardization - “A Common Interface”
 All basic functionality is provided no matter what Maven project you use. In case of ANT, you have to manually write everything from scrath.
 Lifecycle management
 Provides a build life cycle instead of making completely you build your own.
 Project management best practices
 Consistent directory structure provides easy understanding of artifacts 
-Documentation: Maven generates documentation.
+Documentation: Maven can even documentation.
 SCMs
 Releases
 Distribution
 
 What are maven features:
 1. Folows plugin architecture. Every minute task that maven does is by its plugins. You can customize maven fully by customizing these plugins.
-You have full flexibility, for ex: you can tell maven at what phase a plugin should be invoked and what goal of the plugin needs to called at 
-that phase...etc. Also, If needed you can disable a plugin altogether.
+You have full flexibility, for ex: you can tell maven at what phase a plugin should be invoked and what goal of the plugin needs to called at that phase...etc. Also, If needed you can disable a plugin altogether.
 2.Convention over Configuration
 Maven uses Convention over Configuration which means developers are not required to create build process themselves like in ANT.
-3. Maven follows a plugin architecture, every phase is maven build lifecycle is implmented by a plugin. Thease plugins are 
+3. Maven follows a plugin architecture, every phase in maven build lifecycle is implmented by a plugin. Thease plugins are 
 completely customizable.
 4. If still not satified maven allows you to invoke ant scripts also.
 
@@ -58,8 +57,9 @@ how to handle that?
 
 Maven build life cycles & phases
 ------------------------------------
-Maven are 3 built-in build lifecycles: default, clean and site. The default lifecycle handles your project deployment, 
+Maven has 3 built-in build lifecycles: default, clean and site. The default lifecycle handles your project deployment, 
 the clean lifecycle handles project cleaning, while the site lifecycle handles the creation of your project's site documentation.
+
 Each lifecycle is made up of build phases and each build Phase is Made Up of Plugin Goals.
 A plugin goal represents a specific task (finer than a build phase) which contributes to the building of a project. It may be bound to 
 zero or more build phases. if a goal is bound to one or more build phases, that goal will be called in all those phases.
